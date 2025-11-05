@@ -11,6 +11,7 @@ TCPを通信用のプロトコルとして主に用いる。TLSで暗号化す�
 今回作るのは、中央サーバー型通信。
 他にはdiscordなどが該当。クライアント側がサーバーを監視し、情報はサーバーが仲介する。
 今回作るのは、サーバー側。
+
 <img width="688" height="445" alt="スクリーンショット 2025-11-05 11 52 06" src="https://github.com/user-attachments/assets/04fb12f7-ec04-430d-be23-23215eb3db7d" />
 
 
