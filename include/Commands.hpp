@@ -15,4 +15,6 @@ namespace Command
 	void user(Server&, Client&);
 	void join(Server&, Client&);
 	void privmsg(Server&, Client&);
+	
+	//....
 }
