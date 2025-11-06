@@ -1,14 +1,25 @@
 #pragma once
 
-
-// ここはサーバーサイドのロジック
-// 通信先を決めるだけのパラメータと通信を行うための公開関数をかく
-
 class Server
 {
 private:
 	/* data */
+	int						_listen_fd; // This is set up as soon as the Server instance is created.
+	std::vector<pollfd>		_poll_fds; // fd array waiting for the poll().
+	std::map<int, Client>	_clients;
+	std::string				_password;
+
+	/* utils */
+	// ...
+
+
+
+
 public:
-	Server(/* args */);
+	/* default */
+	Server(int port, std::string &password);
 	~Server();
+
+	/* method */
+	void	run();
 };
