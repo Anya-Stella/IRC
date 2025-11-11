@@ -1,3 +1,4 @@
+#include "../include/Server.hpp"
 #include <stdio.h>
 #include <cmath>
 #include <string>
@@ -18,8 +19,8 @@ int	main(int argc, char **argv)
 	std::string	password = argv[2];
 
 	/*.generate and move server */
-	// Server	MainServer(port, password);
-	// server.run();
+	Server	MainServer(port, password);
+	MainServer.run();
 
 	return (0);
 }

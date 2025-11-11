@@ -1,5 +1,14 @@
 #pragma once
 
+#include <iostream>
+#include <poll.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <cstring>
+#include <arpa/inet.h>
+
+
 class Server
 {
 private:
@@ -10,7 +19,7 @@ private:
 	std::string				_password;
 
 	/* utils */
-	// ...
+	void	setupListenSocket_(int port);
 
 
 
