@@ -37,15 +37,52 @@ Server::Server(int port, std::string &password) : _listen_fd(-1), _password(pass
 	std::cout << "Generate Server Complete ...!" << std::endl;
 }
 
-// void	Server::run()
-// {
-// 	std::cout << "Server is running..." << std::endl;
+Server::~Server()
+{
+	//TODO:kokoyaru
+}
 
-// 	while (true)
-// 	{
+void	Server::run()
+{
+	std::cout << "Server is running..." << std::endl;
+
+	while (true)
+	{
+		// poll()
+		if (_poll_fds.empty())
+			throw std::runtime_error("no fds to poll");
+		int	nready = ::poll(&_poll_fds[0], _poll_fds.size(), -1);
+		if (nready < 0)
+			throw std::runtime_error("poll failed");
 		
-// 	}
-// }
+		// scanning
+		for (size_t	i = 0; i < _poll_fds.size(); ++i)	
+		{
+			pollfd	p = _poll_fds[i];
+
+			// POLLIN flag？
+			if (p.revents & POLLIN)
+			{
+				if (p.fd == _listen_fd)
+					acceptNewClient();
+				else
+					receiveFromClient(p.fd);
+			}
+
+			// other flag?
+			//TODO:
+			// if (p.revents & POLLOUT)
+			// {
+
+			// }
+
+			// if (p.revents & (POLLERR | POLLHUP | POLLNVAL))
+			// {
+
+			// }
+		}
+	}
+}
 
 
 

@@ -8,10 +8,10 @@
 
 int	main(int argc, char **argv)
 {
-	/*.input validation */ 
+	/*　input validation */ 
 	if (argc != 3)
 	{
-
+		//TODO:kokoyaru
 	}
 
 	/*.define parameters */

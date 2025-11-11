@@ -20,6 +20,8 @@ private:
 
 	/* utils */
 	void	setupListenSocket_(int port);
+	void	acceptNewClient();
+	void	receiveFromClient(int fd);
 
 
 
