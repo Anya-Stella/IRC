@@ -1,45 +1,36 @@
 #include "../include/Server.hpp"
 
-
-namespace
-{
-	//sub utils
-	sockaddr_in	init_socket_address(const std::string &ip, int port)
-	{
-		sockaddr_in	addr;
-		std::memset(&addr, 0, sizeof(addr));
-
-		addr.sin_family = AF_INET; //IPv4
-		addr.sin_port = htons(port);
-		
-		if (ip.empty() || ip == "0.0.0.0")
-			addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		else
-			addr.sin_addr.s_addr = inet_addr(ip.c_str());
-		return (addr);
-	}
-}
-
-
-
 /* default */
 Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password)
 {
 	std::cout << "Generate Server ..." << std::endl;
+	try
+	{
+		// set up _listen_fd
+		setupListenSocket_(port);
+		
+		// add _listen_fd to _poll_fds
+		pollfd p = { _listen_fd, POLLIN, 0 };
+		_poll_fds.push_back(p);
 
-	// set up _listen_fd
-	setupListenSocket_(port);
-	
-	// add _listen_fd to _poll_fds
-	pollfd p = { _listen_fd, POLLIN, 0 };
-	_poll_fds.push_back(p);
-
-	std::cout << "Generate Server Complete ...!" << std::endl;
+		std::cout << "Generate Server Complete ...!" << std::endl;
+	}
+	catch(...)
+	{
+		if (_listen_fd != -1)
+		{
+			::close(_listen_fd);
+			_listen_fd = -1;
+		}
+		throw;
+	}
 }
 
 Server::~Server()
 {
-	//TODO:kokoyaru
+	if (_listen_fd == -1)
+		::close(_listen_fd);
+	std::cout << "Server closed." << std::endl;
 }
 
 void	Server::run()
@@ -84,12 +75,6 @@ void	Server::run()
 	}
 }
 
-
-
-
-
-
-
 /* utils */
 void	Server::setupListenSocket_(int port)
 {
@@ -120,4 +105,24 @@ void	Server::setupListenSocket_(int port)
 
 	/* _listen_fd does not hold Information about individual client. 
 	   It is associated with the queue. */
+}
+
+/* subUtils */
+namespace
+{
+	//sub utils
+	sockaddr_in	init_socket_address(const std::string &ip, int port)
+	{
+		sockaddr_in	addr;
+		std::memset(&addr, 0, sizeof(addr));
+
+		addr.sin_family = AF_INET; //IPv4
+		addr.sin_port = htons(port);
+		
+		if (ip.empty() || ip == "0.0.0.0")
+			addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		else
+			addr.sin_addr.s_addr = inet_addr(ip.c_str());
+		return (addr);
+	}
 }

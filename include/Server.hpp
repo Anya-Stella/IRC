@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 
 class Server

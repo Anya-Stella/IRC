@@ -19,8 +19,14 @@ int	main(int argc, char **argv)
 	std::string	password = argv[2];
 
 	/*.generate and move server */
-	Server	MainServer(port, password);
-	MainServer.run();
-
+	try
+	{
+		Server	MainServer(port, password);
+		MainServer.run();
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Error : " << e.what() << std::endl; 
+	}
 	return (0);
 }
