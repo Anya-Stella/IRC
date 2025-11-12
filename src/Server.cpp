@@ -107,6 +107,39 @@ void	Server::setupListenSocket_(int port)
 	   It is associated with the queue. */
 }
 
+// Handling Multiple connection requests
+void	Server::acceptNewClient()
+{
+	while (true)
+	{
+		sockaddr_in	cliaddr;
+		socklen_t	len = sizeof(cliaddr);
+		int			cfd = ::accept(_listen_fd, (sockaddr *) &cliaddr, &len);
+		if (cfd < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				break;
+			if (errno == EINTR)
+				continue;
+			throw std::runtime_error("accept failed.");
+		}
+
+		// NONBLOCK
+		if (::fcntl(cfd, F_SETFL, O_NONBLOCK) < 0) {
+			::close(cfd);
+			throw std::runtime_error("fcntl() failed");
+		}
+
+		// push
+		pollfd	p = { cfd, POLLIN, 0 };
+		_poll_fds.push_back(p);
+
+		// register client
+		_clients.insert(std::make_pair(cfd, Client(cfd)));
+
+		std::cout << "Accepted " << cfd << " " << std::endl; 
+	}
+}
+
 /* subUtils */
 namespace
 {

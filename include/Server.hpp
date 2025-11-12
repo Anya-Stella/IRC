@@ -8,7 +8,9 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <unistd.h>
-
+#include <vector>
+#include <map>
+#include "Client.hpp"
 
 class Server
 {

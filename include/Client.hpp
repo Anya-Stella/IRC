@@ -9,11 +9,18 @@ class Client
 {
 private:
 	/* data */
-	std::string	NickName;
-	//  所属しているチャンネルリスト
+	// ここはコマンドとか実装してくに当たって必要そうなのを入れてけばいいと思う
+
+	int _fd;
+
+	std::string	_nickname;
+	// ...
+	
 
 
 public:
-	Client(/* args */);
+	// とりあえずこれだけ
+	explicit	Client(int fd);
+
 	~Client();
 };
