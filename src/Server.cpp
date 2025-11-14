@@ -1,5 +1,26 @@
 #include "../include/Server.hpp"
 
+/* subUtils */
+namespace
+{
+	//sub utils
+	sockaddr_in	init_socket_address(const std::string &ip, int port)
+	{
+		sockaddr_in	addr;
+		std::memset(&addr, 0, sizeof(addr));
+
+		addr.sin_family = AF_INET; //IPv4
+		addr.sin_port = htons(port);
+		
+		if (ip.empty() || ip == "0.0.0.0")
+			addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		else
+			addr.sin_addr.s_addr = inet_addr(ip.c_str());
+		return (addr);
+	}
+}
+
+
 /* default */
 Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password)
 {
@@ -57,7 +78,9 @@ void	Server::run()
 				if (p.fd == _listen_fd)
 					acceptNewClient();
 				else
-					receiveFromClient(p.fd);
+				{
+					// receiveFromClient(p.fd);
+				}
 			}
 
 			// other flag?
@@ -85,6 +108,7 @@ void	Server::setupListenSocket_(int port)
 		throw std::runtime_error("generate socket failed");
 
 	// set SO_REUSEADDR 'ON', this allows the port to be used immediately after a reboot.
+	// avoid "bind failed: Address already in use"
 	int optValue = 1;
     ::setsockopt(_listen_fd, SOL_SOCKET, SO_REUSEADDR, &optValue, sizeof(optValue));
 
@@ -140,22 +164,3 @@ void	Server::acceptNewClient()
 	}
 }
 
-/* subUtils */
-namespace
-{
-	//sub utils
-	sockaddr_in	init_socket_address(const std::string &ip, int port)
-	{
-		sockaddr_in	addr;
-		std::memset(&addr, 0, sizeof(addr));
-
-		addr.sin_family = AF_INET; //IPv4
-		addr.sin_port = htons(port);
-		
-		if (ip.empty() || ip == "0.0.0.0")
-			addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		else
-			addr.sin_addr.s_addr = inet_addr(ip.c_str());
-		return (addr);
-	}
-}

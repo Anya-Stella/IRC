@@ -7,7 +7,11 @@ OBJ_DIR := bin
 
 ############################################################### SRCS ##############################################################
 SRC := \
-		Serializer.cpp \
+		Utils.cpp \
+		Channel.cpp \
+		Commands.cpp \
+		Client.cpp \
+		Server.cpp \
 		main.cpp
 
 
