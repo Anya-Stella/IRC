@@ -9,7 +9,6 @@ OBJ_DIR := bin
 SRC := \
 		Utils.cpp \
 		Channel.cpp \
-		Commands.cpp \
 		Client.cpp \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
