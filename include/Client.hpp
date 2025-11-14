@@ -15,7 +15,7 @@ private:
 
 	std::string	_nickname;
 	// ...
-	
+
 
 
 public:

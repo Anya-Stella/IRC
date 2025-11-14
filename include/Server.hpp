@@ -12,6 +12,8 @@
 #include <map>
 #include "Client.hpp"
 
+struct ParsedMessage;
+
 class Server
 {
 private:
@@ -26,7 +28,10 @@ private:
 	void	acceptNewClient();
 	void	receiveFromClient(int fd);
 
-
+	/* cmds */
+	void	executeCmds(Client &c, ParsedMessage &msg);
+	void	handleNICK(/* params */);
+	// ...
 
 
 public:
@@ -36,4 +41,9 @@ public:
 
 	/* method */
 	void	run();
+};
+
+struct ParsedMessage {
+	std::string					command;
+	std::vector<std::string>	params;
 };
