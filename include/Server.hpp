@@ -29,8 +29,8 @@ private:
 	void	receiveFromClient(int fd);
 
 	/* cmds */
-	void	executeCmds(Client &c, ParsedMessage &msg);
-	void	handleNICK(/* params */);
+	void	executeCmds(Client &c, const ParsedMessage &msg);
+	void	handleNICK(Client &c, const std::vector<std::string> &params);
 	// ...
 
 

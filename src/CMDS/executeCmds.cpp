@@ -1,13 +1,13 @@
 #include <string>
 #include "../../include/Server.hpp"
 
-void	Server::executeCmds(Client &c, ParsedMessage &msg)
+void	Server::executeCmds(Client &c, const ParsedMessage &msg)
 {
     (void)  c;
 
 
     if (msg.command == "NICK")
-        handleNICK();
+        handleNICK(c, msg.params);
     else if (msg.command == "PASS")
     {
 
