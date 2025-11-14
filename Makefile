@@ -12,6 +12,8 @@ SRC := \
 		Commands.cpp \
 		Client.cpp \
 		Server.cpp \
+		CMDS/executeCmds.cpp \
+		CMDS/handleNICK.cpp \
 		main.cpp
 
 
