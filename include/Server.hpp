@@ -12,13 +12,26 @@
 #include <map>
 #include "Client.hpp"
 
+#define RCV_MAXBUFF 1024 // rcv message
+
+typedef enum{
+	save_getstr,
+	save_laststr,
+	close_fd
+} rcv_rtn;
+
+struct ParsedMessage {
+	std::string					command;
+	std::vector<std::string>	params;
+};
+
 class Server
 {
 private:
 	/* data */
 	int						_listen_fd; // This is set up as soon as the Server instance is created.
 	std::vector<pollfd>		_poll_fds; // fd array waiting for the poll().
-	std::map<int, Client>	_clients;
+	std::map<int, Client>	_clients; // mkuida-memo int ha soketfd
 	std::string				_password;
 
 	/* utils */

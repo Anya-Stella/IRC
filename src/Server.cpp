@@ -159,3 +159,105 @@ namespace
 		return (addr);
 	}
 }
+
+//mkuida
+
+void mkPmsg(const std::string line, ParsedMessage &pmsg)
+{
+	size_t num = 0;
+	size_t i = 0;
+	size_t strlen = line.len();
+	const char p[] = line.str();
+
+	while(i < len)
+	{
+		while(i < len && std::isspace(static_cast<unsigned char>(p[i])))
+			++i;
+		size_t start = i;
+		while (i < len && !std::isspace(static_cast<unsigned char>(p[i])))
+			++i;
+		size_t end = i - 1;
+		if(num == 0)
+			pmsg.command.push_back(line.substr(start,end));
+		else
+			pmsg.params[num-1].push_back(line.substr(start,end));
+
+		num++;
+	}
+}
+
+void consumeClientBuffLine(int fd, std::string &cbuff)
+{
+	size_t pos = cbuff.find("\r\n")
+	while(pos != std::string::nopos)
+	{
+		if(pos + 2 > CMD_MAXBUFF)
+		{
+			//send tocliant too long
+			cbuff.erase(0, pos + 2);
+			continue;
+		}
+		std::string cmd = cbuff.substr(0,pos+2);
+		cbuff.erase(0, pos + 2);
+		ParsedMessage pmsg;
+		mkPmsg(cmd,pmsg);
+		//eccutepmsg
+	}
+}
+
+rcv_rtn acceptCliantMessage(int fd, std::string& cliant_message)
+{
+	char buff[RCV_MAXBUFF];
+
+	while (1)
+	{
+		sszie_t rsize = recv(fd, buf, sizeof(buff) - 1, 0);
+		if(rsize > 0)
+		{
+			getstr = true;
+			buff[rsize] = '\0';
+			cliant_message += buff;
+			continue;
+		}
+		else if(rsize == 0)
+		{
+			return (save_laststr);
+		}
+		if (errno == EINTER)
+			continue;
+		else if (errno == EAGAIN || errno == EWOULDBLOCK )
+			return (save_getstr);
+		else if (errno == ECONNRESET)
+			return (close_fd);
+		else
+			return (close_fd) // ←huan
+	}
+}
+
+
+void	Server::receiveFromClient(int fd)
+{
+	Cliant *cliant = getCliantPtr(fd);
+
+	rcv_rtn rtn = acceptCliantMessage(fd, cliant->setBuff());
+	if(rtn == close_fd)
+	{
+		// close fd
+		return ;
+	}
+	if (cliant->getBuff.size() == 0)
+		return ;
+	if (cliant->getBuff.size() > CLIENT_MAXBUF)
+	{
+		std::cerr << "err msg : too large" << std::endl;
+		// close fd
+		return ;
+	}
+	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
+	consumeClientBuffLine(fd, client->setBuff());
+	std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;
+
+	if(rtn == save_laststr)
+		// close fd
+	return ;
+}
