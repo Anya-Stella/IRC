@@ -49,8 +49,14 @@ Server::Server(int port, std::string &password) : _listen_fd(-1), _password(pass
 
 Server::~Server()
 {
-	if (_listen_fd == -1)
+	// close client_FD
+	for( std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		::close(it->first);
+
+	// close server_FD
+	if (_listen_fd != -1)
 		::close(_listen_fd);
+
 	std::cout << "Server closed." << std::endl;
 }
 
