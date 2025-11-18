@@ -10,7 +10,7 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
         handleNICK(c, msg.params);
     else if (msg.command == "PASS")
     {
-
+        handlePASS(c, msg.params);
     }
     else
     {
