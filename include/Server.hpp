@@ -25,6 +25,7 @@ private:
 
 	/* utils */
 	void	setupListenSocket_(int port);
+	void	disconnectClient(int fd);
 	void	acceptNewClient();
 	void	receiveFromClient(int fd);
 

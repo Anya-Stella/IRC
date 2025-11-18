@@ -137,6 +137,28 @@ void	Server::setupListenSocket_(int port)
 	   It is associated with the queue. */
 }
 
+// poll_fdから消去、fdをクローズ、クライエントからも消す
+void	Server::disconnectClient(int fd)
+{
+	// erase from _poll_fds
+	for (std::vector<pollfd>::iterator it = _poll_fds.begin(); it != _poll_fds.end(); ++it)
+	{
+		if (it->fd == fd)
+		{
+			_poll_fds.erase(it);
+			break;
+		}
+	}
+		
+	// erase from _clients
+	_clients.erase(fd);
+
+	// close fd
+	::close(fd);
+
+	std::cout << "disconnect Client." << std::endl;
+}
+
 // Handling Multiple connection requests
 void	Server::acceptNewClient()
 {
