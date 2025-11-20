@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <vector>
 #include <map>
+#include <cerrno>
 #include "Client.hpp"
 
 struct ParsedMessage;
