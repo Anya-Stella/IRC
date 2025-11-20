@@ -158,7 +158,9 @@ void	Server::acceptNewClient()
 		_poll_fds.push_back(p);
 
 		// register client
-		_clients.insert(std::make_pair(cfd, Client(cfd)));
+		// _clients.insert(std::make_pair(cfd, Client(cfd)));
+		_clients[cfd] = new Client(cfd);
+
 
 		std::cout << "Accepted " << cfd << " " << std::endl; 
 	}

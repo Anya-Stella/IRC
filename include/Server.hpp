@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include "Client.hpp"
+#include <cerrno> 
 
 struct ParsedMessage;
 
@@ -20,7 +21,7 @@ private:
 	/* data */
 	int						_listen_fd; // This is set up as soon as the Server instance is created.
 	std::vector<pollfd>		_poll_fds; // fd array waiting for the poll().
-	std::map<int, Client>	_clients;
+	std::map<int, Client*>	_clients;
 	std::string				_password;
 
 	/* utils */
@@ -31,6 +32,9 @@ private:
 	/* cmds */
 	void	executeCmds(Client &c, const ParsedMessage &msg);
 	void	handleNICK(Client &c, const std::vector<std::string> &params);
+	/*PASS*/
+	void 	handlePASS(Client &c, const std::vector<std::string> &params);
+	void 	sendWelcome(Client &c);
 	// ...
 
 

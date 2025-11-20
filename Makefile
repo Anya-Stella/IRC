@@ -13,6 +13,7 @@ SRC := \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
 		CMDS/handleNICK.cpp \
+		CMDS/handlePASS.cpp \
 		main.cpp
 
 
