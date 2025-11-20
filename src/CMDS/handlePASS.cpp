@@ -12,7 +12,7 @@ void Server::sendWelcome(Client &c)
 void Server::handlePASS(Client &c, const std::vector<std::string> &params)
 {
     // PASS に必要なパラメータが不足
-    if (params.size() < 1)
+    if (params.empty())
     {
         c.sendMessage("461 PASS :Not enough parameters\r\n"); // ERR_NEEDMOREPARAMS
         return;
