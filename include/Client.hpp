@@ -32,6 +32,12 @@ public:
 	bool	isPassAccepted() const;
 	void	setPassAccepted(bool v);
 	bool	isFullyRegistered() const;
-
+	/*USER*/
+	bool hasNick() const {
+        return !_nickname.empty();
+    }
+	void setNick(std::string n) {
+		_nickname = n;
+	}
 	~Client();
 };

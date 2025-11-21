@@ -11,6 +11,10 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handlePASS(c, msg.params);
     }
+    else if (msg.command == "USER")
+    {
+        handleUSER(c, msg.params);
+    }
     else
     {
         return;
