@@ -35,6 +35,7 @@ private:
 	void	handleNICK(Client &c, const std::vector<std::string> &params);
 	void 	handlePASS(Client &c, const std::vector<std::string> &params);
 	void 	handleUSER(Client &c, const std::vector<std::string> &params);
+	void 	handlePING(Client &c, const std::vector<std::string> &params);
 
 	/*PASS*/
 	void 	sendWelcome(Client &c);

@@ -1,5 +1,6 @@
 #include "../../include/Server.hpp"
 
+//NICKのバリデーション
 bool Server::isValidNick(const std::string& nickname)
 {
     // 許可される記号リスト
@@ -42,7 +43,7 @@ std::string	toUpperCaseString(const std::string& n)
 	return(result);
 }
 //NICKの重複チェックしてる関数
-bool Server::isUsedNick(const std::string& nickname)
+bool    Server::isUsedNick(const std::string& nickname)
 {
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
@@ -54,9 +55,11 @@ bool Server::isUsedNick(const std::string& nickname)
 	return(false);
 }
 //チャンネルに変更を通知する関数
-void Server::broadcastToChannels(Client& sender, const std::string& message)
+void    Server::broadcastToChannels(Client& sender, const std::string& message)
 {
-	
+	(void)sender;
+    (void)message;
+    return;
 }
 void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
 {
@@ -78,9 +81,10 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
         c.sendMessage("433 NICK :Nickname is already in use\r\n");
         return;
     }
-	    // 4. ニックネーム変更通知（既にニックネームがある場合）
-    if (c.hasNick()) {
-        broadcastToChannels(c, ":" + c.getNickname() + " NICK :" + newNick);
+    // 4. ニックネーム変更通知（既にニックネームがある場合
+    //    かつ、クライアントが登録済みの場合のみ）
+    if (c.hasNick() && c.isFullyRegistered()) {
+        broadcastToChannels(c, ":" + c.getNickname() + " NICK :" + newNick + "\r\n");
     }
 
     // 5. 更新

@@ -15,6 +15,10 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handleUSER(c, msg.params);
     }
+    else if (msg.command == "PING")
+    {
+        handlePING(c, msg.params);
+    }
     else
     {
         return;
