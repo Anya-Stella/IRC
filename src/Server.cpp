@@ -22,7 +22,7 @@ namespace
 
 
 /* default */
-Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password)
+Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels()
 {
 	std::cout << "Generate Server ..." << std::endl;
 	try

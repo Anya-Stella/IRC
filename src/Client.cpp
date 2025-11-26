@@ -4,7 +4,7 @@
 /* default */
 
 Client::Client(int fd) : _fd(fd), _passAccepted(false), _hasNick(false), _hasUser(false), _registered(false),
-_nickname("unknown"), _username("unknown"), _realname("unknown")
+_nickname("unknown"), _username("unknown"), _realname("unknown"), _lastPongTime(0)
 {
 	(void) _fd;
 }
@@ -36,4 +36,5 @@ void Client::setRegistered(bool status) {
 	_registered = status;
 }
 
+/*PONG*/
 Client::~Client(){}

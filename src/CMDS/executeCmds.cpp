@@ -6,7 +6,9 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     (void)  c;
 
     if (msg.command == "NICK")
+    {
         handleNICK(c, msg.params);
+    }
     else if (msg.command == "PASS")
     {
         handlePASS(c, msg.params);
@@ -18,6 +20,18 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     else if (msg.command == "PING")
     {
         handlePING(c, msg.params);
+    }
+    else if (msg.command == "PONG")
+    {
+        handlePONG(c, msg.params);
+    }
+    else if (msg.command == "JOIN")
+    {
+        handleJOIN(c, msg.params);
+    }
+    else if (msg.command == "PART")
+    {
+        handlePART(c, msg.params);
     }
     else
     {

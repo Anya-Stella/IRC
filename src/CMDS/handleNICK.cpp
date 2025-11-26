@@ -1,4 +1,5 @@
 #include "../../include/Server.hpp"
+#include "../../include/Channel.hpp"
 
 //NICKのバリデーション
 bool Server::isValidNick(const std::string& nickname)
@@ -54,13 +55,25 @@ bool    Server::isUsedNick(const std::string& nickname)
 	}
 	return(false);
 }
-//チャンネルに変更を通知する関数
-void    Server::broadcastToChannels(Client& sender, const std::string& message)
+//そのユーザーが属しているチャンネル全てへ通知する
+void Server::broadcastToAllUserChannels(Client& sender, const std::string& message)
 {
-	(void)sender;
-    (void)message;
-    return;
+    const std::vector<std::string>& userChannels = sender.getChannels();
+
+    for (size_t i = 0; i < userChannels.size(); i++)
+    {
+        Channel* ch = _channels[userChannels[i]];
+        if (!ch) continue;
+
+        const std::map<int, Client*>& members = ch->getClients();
+        for (std::map<int, Client*>::const_iterator it = members.begin();
+             it != members.end(); ++it)
+        {
+            it->second->sendMessage(message);
+        }
+    }
 }
+
 void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
 {
 	// NICK に必要なパラメータが不足
@@ -84,7 +97,7 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
     // 4. ニックネーム変更通知（既にニックネームがある場合
     //    かつ、クライアントが登録済みの場合のみ）
     if (c.hasNick() && c.isFullyRegistered()) {
-        broadcastToChannels(c, ":" + c.getNickname() + " NICK :" + newNick + "\r\n");
+        broadcastToAllUserChannels(c, ":" + c.getNickname() + " NICK :" + newNick + "\r\n");
     }
 
     // 5. 更新
