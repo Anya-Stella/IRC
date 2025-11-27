@@ -42,6 +42,10 @@ private:
 	void 	handlePONG(Client &c, const std::vector<std::string> &params);
 	void 	handleJOIN(Client &c, const std::vector<std::string> &params);
 	void 	handlePART(Client &c, const std::vector<std::string> &params);
+	void 	handlePRIVMSG(Client& sender, const std::vector<std::string>& params);
+	void 	handleNOTICE(Client& sender, const std::vector<std::string>& params);
+	void	handleKICK(Client& sender, const std::vector<std::string>& params);
+
 
 	/*PASS*/
 	void 	sendWelcome(Client &c);
@@ -49,9 +53,21 @@ private:
 	bool 	isValidNick(const std::string& nickname);
 	bool 	isUsedNick(const std::string& nickname);
 	void	broadcastToAllUserChannels(Client& sender, const std::string& message);
+	/*NICK*/
+	std::string	toUpperCaseString(const std::string& n);
+
 	/*JOIN*/
 	void	broadcastToChannel(Channel& ch, const std::string& message);
 	void	sendNamesReply(Client& c, const Channel& channel);
+	/*PART*/
+	std::vector<std::string> splitChannels(const std::string& param);
+	std::string 	trim(const std::string& s);
+	/*PRIVMSG*/
+	Client*	findClientByNick(const std::string& nickname);
+	void 	broadcastToChannel(Channel& ch, const std::string& message, Client* sender);
+
+
+
 
 	// ...
 

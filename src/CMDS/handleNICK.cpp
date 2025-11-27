@@ -34,7 +34,7 @@ bool Server::isValidNick(const std::string& nickname)
 }
 
 //string型を大文字にする関数
-std::string	toUpperCaseString(const std::string& n)
+std::string	Server::toUpperCaseString(const std::string& n)
 {
 	std::string result;
 	for(size_t i = 0; i < n.length(); i++)

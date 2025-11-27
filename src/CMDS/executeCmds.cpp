@@ -33,6 +33,10 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handlePART(c, msg.params);
     }
+    else if (msg.command == "KICK")
+    {
+        handleKICK(c, msg.params);
+    }
     else
     {
         return;

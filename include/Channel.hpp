@@ -12,6 +12,7 @@ private:
     bool _inviteOnly;
     size_t _userLimit;
     std::string _topic;
+    std::set<int> _operators;              // オペレーターの fd を保持
 
 public:
     explicit Channel(const std::string& name) : _name(name), _inviteOnly(false), _userLimit(0) {}
@@ -48,5 +49,10 @@ public:
     bool isEmpty() const {
         return _clients.empty();
     }
+
+    //operator
+    void addOperator(Client* c) { _operators.insert(c->getFd()); }
+    void removeOperator(Client* c) { _operators.erase(c->getFd()); }
+    bool isOperator(Client* c) const { return _operators.count(c->getFd()) > 0; }
 };
 
