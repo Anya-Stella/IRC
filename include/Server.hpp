@@ -45,6 +45,8 @@ private:
 	void 	handlePRIVMSG(Client& sender, const std::vector<std::string>& params);
 	void 	handleNOTICE(Client& sender, const std::vector<std::string>& params);
 	void	handleKICK(Client& sender, const std::vector<std::string>& params);
+	void 	handleQUIT(Client& c, const std::vector<std::string>& params);
+
 
 
 	/*PASS*/

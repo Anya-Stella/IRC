@@ -37,6 +37,10 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handleKICK(c, msg.params);
     }
+    else if (msg.command == "QUIT")
+    {
+        handleQUIT(c, msg.params);
+    }
     else
     {
         return;

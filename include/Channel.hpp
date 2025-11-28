@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+#include <map>
+#include <set>
 #include "Server.hpp"
+#include "Client.hpp"
 
 class Client; // 前方宣言
 
