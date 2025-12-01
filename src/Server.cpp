@@ -86,11 +86,11 @@ void	Server::setupListenSocket_(int port)
 
 	// set SO_REUSEADDR 'ON', this allows the port to be used immediately after a reboot.
 	int optValue = 1;
-    ::setsockopt(_listen_fd, SOL_SOCKET, SO_REUSEADDR, &optValue, sizeof(optValue));
+	::setsockopt(_listen_fd, SOL_SOCKET, SO_REUSEADDR, &optValue, sizeof(optValue));
 
 	// this allows Useing 'NONBLOCK', 'non-block' is system-call fanction don't wait anything.
 	// ex) accept() ,recv() returns immediatery. 
-    ::fcntl(_listen_fd, F_SETFL, O_NONBLOCK);
+	::fcntl(_listen_fd, F_SETFL, O_NONBLOCK);
 
 	// set socket address.
 	sockaddr_in	addr = init_socket_address("0.0.0.0", port);
@@ -162,46 +162,38 @@ namespace
 
 //mkuida
 
-void mkPmsg(const std::string line, ParsedMessage &pmsg)
+void mkPmsg(const std::string& line, ParsedMessage &pmsg)
 {
-	size_t num = 0;
 	size_t i = 0;
-	size_t strlen = line.len();
-	const char p[] = line.str();
+	size_t len = line.size();
 
-	while(i < len)
+	while (i < len)
 	{
-		while(i < len && std::isspace(static_cast<unsigned char>(p[i])))
+		while (i < len && std::isspace(static_cast<unsigned char>(line[i])))
 			++i;
-		size_t start = i;
-		while (i < len && !std::isspace(static_cast<unsigned char>(p[i])))
-			++i;
-		size_t end = i - 1;
-		if(num == 0)
-			pmsg.command.push_back(line.substr(start,end));
-		else
-			pmsg.params[num-1].push_back(line.substr(start,end));
+		if (i >= len)
+			break;
 
-		num++;
-	}
-}
-
-void consumeClientBuffLine(int fd, std::string &cbuff)
-{
-	size_t pos = cbuff.find("\r\n")
-	while(pos != std::string::nopos)
-	{
-		if(pos + 2 > CMD_MAXBUFF)
+		// ':' to end 
+		if (line[i] == ':' && i > 0)
 		{
-			//send tocliant too long
-			cbuff.erase(0, pos + 2);
-			continue;
+			++i;
+			std::string trail = line.substr(i);
+			pmsg.params.push_back(trail);
+			return;
 		}
-		std::string cmd = cbuff.substr(0,pos+2);
-		cbuff.erase(0, pos + 2);
-		ParsedMessage pmsg;
-		mkPmsg(cmd,pmsg);
-		//eccutepmsg
+
+		// normal
+		size_t start = i;
+		while (i < len && !std::isspace(static_cast<unsigned char>(line[i])))
+			++i;
+
+		std::string token = line.substr(start, i - start);
+
+		if (pmsg.command.empty())
+			pmsg.command = token;
+		else
+			pmsg.params.push_back(token);
 	}
 }
 
@@ -234,30 +226,38 @@ rcv_rtn acceptCliantMessage(int fd, std::string& cliant_message)
 	}
 }
 
-
 void	Server::receiveFromClient(int fd)
 {
-	Cliant *cliant = getCliantPtr(fd);
+	Client *client = getCliantPtr(fd);
 
-	rcv_rtn rtn = acceptCliantMessage(fd, cliant->setBuff());
+	rcv_resp rtn = acceptCliantMessage(fd, cliant->setBuff());
 	if(rtn == close_fd)
 	{
-		// close fd
+		close_fd(fd);
 		return ;
 	}
 	if (cliant->getBuff.size() == 0)
 		return ;
 	if (cliant->getBuff.size() > CLIENT_MAXBUF)
 	{
-		std::cerr << "err msg : too large" << std::endl;
-		// close fd
+		std::cerr << "err : too large data accept and disconect cliant" << cliant->getNickname() << std::endl;
+		close_fd(fd);
 		return ;
 	}
-	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
-	consumeClientBuffLine(fd, client->setBuff());
-	std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;
+	whlie(client.devBuff("\r\n"))
+	{
+		if (client.getCmd().size() > CMD_MAXBUFF)
+		{
+			std::cerr << "err : too large cmdline accept and disconect cliant" << cliant->getNickname() << std::endl;
+			close_fd(fd);
+			return ;	
+		}
+		std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
+		ParsedMessage pmsg;
+		mkPmsg(client.getCmd(),pmsg);
+		// consumeClientBuffLine(fd, client->setCmd());
+		std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;	
+	}
 
-	if(rtn == save_laststr)
-		// close fd
 	return ;
 }

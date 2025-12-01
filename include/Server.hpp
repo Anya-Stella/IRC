@@ -14,13 +14,15 @@
 
 #define RCV_MAXBUFF 1024 // rcv message
 
-typedef enum{
+typedef enum
+{
 	save_getstr,
 	save_laststr,
 	close_fd
-} rcv_rtn;
+} rcv_resp;
 
-struct ParsedMessage {
+struct ParsedMessage
+{
 	std::string					command;
 	std::vector<std::string>	params;
 };
