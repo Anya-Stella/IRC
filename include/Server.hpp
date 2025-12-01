@@ -46,7 +46,9 @@ private:
 	void 	handleNOTICE(Client& sender, const std::vector<std::string>& params);
 	void	handleKICK(Client& sender, const std::vector<std::string>& params);
 	void 	handleQUIT(Client& c, const std::vector<std::string>& params);
-
+	void 	handleINVITE(Client& sender, const std::vector<std::string>& params);
+	void 	handleTOPIC(Client& c, const std::vector<std::string>& params);
+	void 	handleMODE(Client& sender, const std::vector<std::string>& params);
 
 
 	/*PASS*/

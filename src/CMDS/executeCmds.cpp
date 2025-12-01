@@ -41,6 +41,10 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handleQUIT(c, msg.params);
     }
+    else if (msg.command == "QUIT")
+    {
+        handleINVITE(c, msg.params);
+    }
     else
     {
         return;

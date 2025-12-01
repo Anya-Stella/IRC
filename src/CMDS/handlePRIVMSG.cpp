@@ -17,13 +17,19 @@ void Server::broadcastToChannel(Channel& ch, const std::string& message, Client*
 // サーバークラス内に追加
 Client* Server::findClientByNick(const std::string& nickname)
 {
-    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    // _clients: map<int fd, Client*> に入っている全クライアントを走査
+    for (std::map<int, Client*>::iterator it = _clients.begin();
+         it != _clients.end(); ++it)
     {
         Client* c = it->second;
+        // ニックネーム比較（大文字小文字を無視するため toUpperCaseString を使う）
         if (toUpperCaseString(c->getNickname()) == toUpperCaseString(nickname))
-            return c;
+        {
+            return c; // 一致したクライアントを返す
+        }
     }
-    return nullptr; // 見つからなかった場合
+    // どのクライアントも一致しなかった場合
+    return nullptr;
 }
 
 void Server::handlePRIVMSG(Client& sender, const std::vector<std::string>& params)

@@ -11,12 +11,16 @@ class Client; // 前方宣言
 class Channel {
 private:
     std::string _name;
-    std::map<int, Client*> _clients; // このチャンネルに参加しているクライアント
-    std::string _key;
-    bool _inviteOnly;
-    size_t _userLimit;
+    std::map<int, Client*> _clients;       // このチャンネルに参加しているクライアント
     std::string _topic;
     std::set<int> _operators;              // オペレーターの fd を保持
+    std::set<int> _invited;                // 招待されたクライアントFD一覧
+
+    /*MODE*/
+    bool _inviteOnly;      // +i
+    bool _topicProtected;  // +t
+    std::string _key;      // +k
+    size_t _userLimit;     // +l
 
 public:
     explicit Channel(const std::string& name) : _name(name), _inviteOnly(false), _userLimit(0) {}
@@ -58,5 +62,29 @@ public:
     void addOperator(Client* c) { _operators.insert(c->getFd()); }
     void removeOperator(Client* c) { _operators.erase(c->getFd()); }
     bool isOperator(Client* c) const { return _operators.count(c->getFd()) > 0; }
+
+    bool isInviteOnly() const;         // +i 状態の取得
+    void setInviteOnly(bool mode);     // +i 設定
+    void addInvite(int fd);            // 招待リストに追加
+    bool isInvited(int fd) const;      // 招待されてるか？
+
+    /*TOPIC*/
+    const std::string& getTopic() const { return _topic; }
+    void setTopic(const std::string& t) { _topic = t; }
+    bool isTopicProtected() const { return _topicProtected; }
+    void setTopicProtected(bool p) { _topicProtected = p; }
+
+    /*MODE*/
+    bool isInviteOnly() const { return _inviteOnly; }
+    void setInviteOnly(bool v) { _inviteOnly = v; }
+    bool isTopicProtected() const { return _topicProtected; }
+    void setTopicProtected(bool v) { _topicProtected = v; }
+    const std::string& getKey() const { return _key; }
+    void setKey(const std::string& k) { _key = k; }
+    size_t getUserLimit() const { return _userLimit; }
+    void setUserLimit(size_t l) { _userLimit = l; }
+    bool isOperator(int fd) const { return _operators.count(fd); }
+    void addOperator(int fd) { _operators.insert(fd); }
+    void removeOperator(int fd) { _operators.erase(fd); }
 };
 
