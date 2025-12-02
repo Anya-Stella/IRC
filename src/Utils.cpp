@@ -26,3 +26,16 @@ bool validatePassword(const std::string& password)
 	return true;
 }
 
+void printPmsg(const ParsedMessage& p)	//mkuida
+{
+	std::cout << "command : " << p.command << std::endl;
+	if(p.params.empty())
+		std::cout << "params : none" << std::endl;
+	else
+	{
+		for(size_t i = 0 ; i < p.params.size() ; ++i)
+		{
+			std::cout << "params[" << i << "] : " << p.params[i] << std::endl;
+		}
+	}
+}
