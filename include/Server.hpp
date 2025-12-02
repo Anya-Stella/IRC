@@ -52,3 +52,17 @@ public:
 	/* method */
 	void	run();
 };
+
+void printPmsg(const ParsedMessage& p)	//mkuida
+{
+	std::cout << "command : " << p.command << std::endl;
+	if(p.params.empty())
+		std::cout << "params : none" << std::endl;
+	else
+	{
+		for(int i = 0 ; i < p.params.size() ; ++i)
+		{
+			std::cout << "params[" << i << "] : " << p.params[i] << std::endl;
+		}
+	}
+}

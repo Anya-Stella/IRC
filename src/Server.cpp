@@ -197,40 +197,39 @@ void mkPmsg(const std::string& line, ParsedMessage &pmsg)
 	}
 }
 
-rcv_rtn acceptCliantMessage(int fd, std::string& cliant_message)
+rcv_rtn acceptClientMessage(int fd, std::string& cliant_buff)
 {
 	char buff[RCV_MAXBUFF];
 
 	while (1)
 	{
-		sszie_t rsize = recv(fd, buf, sizeof(buff) - 1, 0);
+		ssize_t rsize = recv(fd, buff, sizeof(buff) - 1, 0);
 		if(rsize > 0)
 		{
-			getstr = true;
 			buff[rsize] = '\0';
-			cliant_message += buff;
+			cliant_buff += buff;
 			continue;
 		}
 		else if(rsize == 0)
 		{
 			return (save_laststr);
 		}
-		if (errno == EINTER)
+		if (errno == EINTR)
 			continue;
 		else if (errno == EAGAIN || errno == EWOULDBLOCK )
 			return (save_getstr);
 		else if (errno == ECONNRESET)
 			return (close_fd);
 		else
-			return (close_fd) // ←huan
+			return (close_fd); // ←huan
 	}
 }
 
 void	Server::receiveFromClient(int fd)
 {
-	Client *client = getCliantPtr(fd);
+	Client *client = getClientPtr(fd);
 
-	rcv_resp rtn = acceptCliantMessage(fd, cliant->setBuff());
+	rcv_resp rtn = acceptClientMessage(fd, cliant->adjBuff());
 	if(rtn == close_fd)
 	{
 		close_fd(fd);
@@ -238,7 +237,7 @@ void	Server::receiveFromClient(int fd)
 	}
 	if (cliant->getBuff.size() == 0)
 		return ;
-	if (cliant->getBuff.size() > CLIENT_MAXBUF)
+	if (cliant->getBuff.size() > CLIENT_MAXBUFF)
 	{
 		std::cerr << "err : too large data accept and disconect cliant" << cliant->getNickname() << std::endl;
 		close_fd(fd);
@@ -252,12 +251,13 @@ void	Server::receiveFromClient(int fd)
 			close_fd(fd);
 			return ;	
 		}
-		std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
 		ParsedMessage pmsg;
 		mkPmsg(client.getCmd(),pmsg);
-		// consumeClientBuffLine(fd, client->setCmd());
-		std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;	
+		std::cout << "\n \033[31m --------- Received --------- \033[m" << std::endl;
+		printPmsg(pmsg); //debag
+		std::cout << "\033[31m --------- End --------- \033[m" << std::endl;	
 	}
 
 	return ;
 }
+
