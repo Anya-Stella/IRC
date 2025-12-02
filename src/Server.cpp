@@ -174,6 +174,7 @@ void	Server::acceptNewClient()
 				continue;
 			throw std::runtime_error("accept failed.");
 		}
+		
 
 		// NONBLOCK
 		if (::fcntl(cfd, F_SETFL, O_NONBLOCK) < 0) {
