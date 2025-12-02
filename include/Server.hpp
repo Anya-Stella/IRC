@@ -12,8 +12,18 @@
 #include <map>
 #include <cerrno>
 #include "Client.hpp"
+#include "Utils.hpp"
+#include <cerrno>
 
+#define RCV_MAXBUFF 1024 // rcv_message mkuida
 struct ParsedMessage;
+
+typedef enum	// mkuida
+{
+	save_getstr,
+	save_laststr,
+	close_fd
+} rcv_resp;
 
 class Server
 {
@@ -34,7 +44,10 @@ private:
 	void	executeCmds(Client &c, const ParsedMessage &msg);
 	void	handleNICK(Client &c, const std::vector<std::string> &params);
 	// ...
-
+	void		mkPmsg(const std::string& line, ParsedMessage &pmsg);
+	rcv_resp	acceptClientMessage(int fd, std::string& cliant_buff);
+	Client*		getClientPtr(int fd);
+	
 
 public:
 	/* default */

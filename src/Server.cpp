@@ -85,7 +85,7 @@ void	Server::run()
 					acceptNewClient();
 				else
 				{
-					// receiveFromClient(p.fd);
+					receiveFromClient(p.fd);
 				}
 			}
 
@@ -192,3 +192,115 @@ void	Server::acceptNewClient()
 	}
 }
 
+
+Client* Server::getClientPtr(int fd)
+{
+	std::map<int, Client>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
+		return &(it->second);
+	return NULL;
+}
+
+void	Server::mkPmsg(const std::string& line, ParsedMessage &pmsg)
+{
+	size_t i = 0;
+	size_t len = line.size();
+
+	while (i < len)
+	{
+		while (i < len && std::isspace(static_cast<unsigned char>(line[i])))
+			++i;
+		if (i >= len)
+			break;
+
+		// ':' to end 
+		if (line[i] == ':' && i > 0)
+		{
+			++i;
+			std::string trail = line.substr(i);
+			pmsg.params.push_back(trail);
+			return;
+		}
+
+		// normal
+		size_t start = i;
+		while (i < len && !std::isspace(static_cast<unsigned char>(line[i])))
+			++i;
+
+		std::string token = line.substr(start, i - start);
+
+		if (pmsg.command.empty())
+			pmsg.command = token;
+		else
+			pmsg.params.push_back(token);
+	}
+}
+
+rcv_resp	Server::acceptClientMessage(int fd, std::string& cliant_buff)
+{
+	char buff[RCV_MAXBUFF];
+
+	while (1)
+	{
+		ssize_t rsize = recv(fd, buff, sizeof(buff) - 1, 0);
+		if(rsize > 0)
+		{
+			buff[rsize] = '\0';
+			cliant_buff += buff;
+			continue;
+		}
+		else if(rsize == 0)
+		{
+			return (save_laststr);
+		}
+		if (errno == EINTR)
+			continue;
+		else if (errno == EAGAIN || errno == EWOULDBLOCK )
+			return (save_getstr);
+		else if (errno == ECONNRESET)
+			return (close_fd);
+		else
+			return (close_fd); // ←huan
+	}
+}
+
+void	Server::receiveFromClient(int fd)
+{
+	Client *client = getClientPtr(fd);
+	if(client == NULL)
+		return ;
+
+	rcv_resp rtn = acceptClientMessage(fd, client->adjBuff());
+	if(rtn == close_fd)
+	{
+		//TODO: close_fd(fd);
+		std::cout << "close_fd(fd)" << std::endl;
+		return ;
+	}
+	if (client->getBuff().size() == 0)
+		return ;
+	if (client->getBuff().size() > CLIENT_MAXBUFF)
+	{
+		std::cerr << "err : too large data accept and disconect cliant" << "client->getNickname()" << std::endl; // out ""
+		//TODO: close_fd(fd);
+		std::cout << "close_fd(fd)" << std::endl;
+		return ;
+	}
+	while(client->devBuff("\r\n"))
+	{
+		if (client->getCmd().size() > CMD_MAXBUFF)
+		{
+			std::cerr << "err : too large cmdline accept and disconect cliant" << "cliint->getNickname()" << std::endl; // out ""
+			//TODO: close_fd(fd);
+			std::cout << "close_fd(fd)" << std::endl;
+			return ;	
+		}
+		ParsedMessage pmsg;
+		mkPmsg(client->getCmd(),pmsg);
+		std::cout << "\033[31m --------- Received --------- \033[m" << std::endl;
+		printPmsg(pmsg); //for debag
+		std::cout << "\033[31m ---------    End    --------- \033[m" << std::endl;	
+	}
+
+	return ;
+}
