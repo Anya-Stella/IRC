@@ -191,3 +191,4 @@ void	Server::acceptNewClient()
 		std::cout << "Accepted " << cfd << " " << std::endl; 
 	}
 }
+
