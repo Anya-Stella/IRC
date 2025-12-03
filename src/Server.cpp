@@ -20,7 +20,6 @@ namespace
 	}
 }
 
-
 /* default */
 Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels()
 {
@@ -203,9 +202,9 @@ void	Server::acceptNewClient()
 
 Client* Server::getClientPtr(int fd)
 {
-	std::map<int, Client>::iterator it = _clients.find(fd);
+	std::map<int, Client*>::iterator it = _clients.find(fd);
 	if (it != _clients.end())
-		return &(it->second);
+		return (it->second);
 	return NULL;
 }
 
