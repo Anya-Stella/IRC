@@ -304,7 +304,10 @@ void	Server::receiveFromClient(int fd)
 		ParsedMessage pmsg;
 		mkPmsg(client->getCmd(),pmsg);
 
-		// debug
+		// execute
+		executeCmds(*client, pmsg);
+
+		//TODO: debug
 		std::cout << "\033[31m --------- Received --------- \033[m" << std::endl;
 		printPmsg(pmsg);
 		std::cout << "\033[31m ---------    End    --------- \033[m" << std::endl;	
