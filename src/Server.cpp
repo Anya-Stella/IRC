@@ -22,7 +22,7 @@ namespace
 
 
 /* default */
-Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password)
+Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels()
 {
 	std::cout << "Generate Server ..." << std::endl;
 	try
@@ -192,7 +192,9 @@ void	Server::acceptNewClient()
 		_poll_fds.push_back(p);
 
 		// register client
-		_clients.insert(std::make_pair(cfd, Client(cfd)));
+		// _clients.insert(std::make_pair(cfd, Client(cfd)));
+		_clients[cfd] = new Client(cfd);
+
 
 		std::cout << "Accepted " << cfd << " " << std::endl; 
 	}

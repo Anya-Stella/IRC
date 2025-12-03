@@ -13,6 +13,10 @@ SRC := \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
 		CMDS/handleNICK.cpp \
+		CMDS/handlePASS.cpp \
+		CMDS/handleUSER.cpp \
+		CMDS/handlePING.cpp \
+		CMDS/handlePONG.cpp \
 		main.cpp
 
 
