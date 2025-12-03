@@ -1,5 +1,6 @@
 #include "../../include/Server.hpp"
 #include "../../include/Channel.hpp"
+#include <sstream>
 
 // MODE コマンドハンドラ
 void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
@@ -38,28 +39,36 @@ void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
 
     // --- 5. モード処理 ---
     for (size_t i = 0; i < modeStr.size(); i++) {
-        char c = modeStr[i];
+    char c = modeStr[i];
 
-        switch (c) {
-            case '+': /* ON にするフラグの開始 */ break;
-            case '-': /* OFF にするフラグの開始 */ break;
-            case 'i': channel->setInviteOnly(true); break;
-            case 't': channel->setTopicProtected(true); break;
-            case 'k':
-                if (!targetUser.empty()) channel->setKey(targetUser);
-                break;
-            case 'l':
-                if (!targetUser.empty()) channel->setUserLimit(std::stoi(targetUser));
-                break;
-            case 'o': {
-                Client* target = findClientByNick(targetUser);
-                if (target) channel->addOperator(target->getFd());
-                break;
+    switch (c) {
+        case '+': /* ON にするフラグの開始 */ break;
+        case '-': /* OFF にするフラグの開始 */ break;
+        case 'i': channel->setInviteOnly(true); break;
+        case 't': channel->setTopicProtected(true); break;
+        case 'k':
+            if (!targetUser.empty()) 
+                channel->setKey(targetUser);
+            break;
+        case 'l':
+            if (!targetUser.empty()) {
+                std::stringstream ss(targetUser);
+                int limit;
+                ss >> limit;
+                channel->setUserLimit(limit);
             }
-            default:
-                sender.sendMessage("472 " + std::string(1, c) + " :Unknown mode char\r\n");
+            break;
+        case 'o': {
+            Client* target = findClientByNick(targetUser);
+            if (target != NULL) 
+                channel->addOperator(target->getFd());
+            break;
         }
+        default:
+            sender.sendMessage("472 " + std::string(1, c) + " :Unknown mode char\r\n");
     }
+}
+
 
     // --- 6. チャンネル内全員に通知 ---
     broadcastToChannel(*channel, ":" + sender.getNickname() + " MODE " + channelName + " " + modeStr +

@@ -29,7 +29,7 @@ Client* Server::findClientByNick(const std::string& nickname)
         }
     }
     // どのクライアントも一致しなかった場合
-    return nullptr;
+    return NULL;
 }
 
 void Server::handlePRIVMSG(Client& sender, const std::vector<std::string>& params)

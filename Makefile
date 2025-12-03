@@ -17,6 +17,15 @@ SRC := \
 		CMDS/handleUSER.cpp \
 		CMDS/handlePING.cpp \
 		CMDS/handlePONG.cpp \
+		CMDS/handleJOIN.cpp \
+		CMDS/handlePART.cpp \
+		CMDS/handlePRIVMSG.cpp \
+		CMDS/handleNOTICE.cpp \
+		CMDS/handleKICK.cpp \
+		CMDS/handleQUIT.cpp \
+		CMDS/handleINVITE.cpp \
+		CMDS/handleTOPIC.cpp \
+		CMDS/handleMODE.cpp \
 		main.cpp
 
 

@@ -2,17 +2,12 @@
 
 
 //TODO:temp()
-bool Channel::isInviteOnly() const{
-	return (false);
-}
-void Channel::setInviteOnly(bool mode){
-	return ;
-}
 void Channel::addInvite(int fd)
 {
-	return ;
+    _invited.insert(fd);
 }
+
 bool Channel::isInvited(int fd) const
 {
-	return (false);
+    return _invited.count(fd) > 0;
 }

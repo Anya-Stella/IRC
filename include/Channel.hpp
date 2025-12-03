@@ -39,6 +39,7 @@ public:
 
     // チャンネル参加可能か（キー、制限、招待制など）
     bool canJoin(Client& c, const std::string& key) const {
+        (void) c;
         if (_inviteOnly) return false;
         if (!_key.empty() && key != _key) return false;
         if (_userLimit > 0 && _clients.size() >= _userLimit) return false;
@@ -63,16 +64,8 @@ public:
     void removeOperator(Client* c) { _operators.erase(c->getFd()); }
     bool isOperator(Client* c) const { return _operators.count(c->getFd()) > 0; }
 
-    bool isInviteOnly() const;         // +i 状態の取得
-    void setInviteOnly(bool mode);     // +i 設定
     void addInvite(int fd);            // 招待リストに追加
     bool isInvited(int fd) const;      // 招待されてるか？
-
-    /*TOPIC*/
-    const std::string& getTopic() const { return _topic; }
-    void setTopic(const std::string& t) { _topic = t; }
-    bool isTopicProtected() const { return _topicProtected; }
-    void setTopicProtected(bool p) { _topicProtected = p; }
 
     /*MODE*/
     bool isInviteOnly() const { return _inviteOnly; }

@@ -27,7 +27,7 @@ void Server::sendNamesReply(Client& c, const Channel& channel)
 
     // 最後の余分な空白を削除
     if (!names.empty())
-        names.pop_back();
+        names.erase(names.size() - 1);
 
     // --- IRCプロトコルに従ったメッセージ送信 ---
     
@@ -53,7 +53,7 @@ void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
     std::string key = (params.size() > 1) ? params[1] : "";
 
     // チャンネル存在確認・作成
-    Channel* channel = nullptr;
+    Channel* channel = NULL;
     if (_channels.count(channelName))
         channel = _channels[channelName];
     else
