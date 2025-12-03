@@ -49,7 +49,7 @@ Server::Server(int port, std::string &password) : _listen_fd(-1), _password(pass
 Server::~Server()
 {
 	// close client_FD
-	for( std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	for( std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		::close(it->first);
 
 	// close server_FD
