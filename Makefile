@@ -7,8 +7,8 @@ OBJ_DIR := bin
 
 ############################################################### SRCS ##############################################################
 SRC := \
-		Utils.cpp \
 		Channel.cpp \
+		Utils.cpp \
 		Client.cpp \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
