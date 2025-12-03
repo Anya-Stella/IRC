@@ -77,7 +77,7 @@ void	Server::run()
 		if (nready < 0)
 			throw std::runtime_error("poll failed");
 
-		std::cout << "松の終わり\n" << std::endl;//TODO:
+		std::cout << "待つの終わり\n" << std::endl;//TODO:
 		
 		// scanning
 		for (size_t	i = 0; i < _poll_fds.size(); ++i)	
@@ -143,7 +143,7 @@ void	Server::setupListenSocket_(int port)
 	   It is associated with the queue. */
 }
 
-// poll_fdから消去、fdをクローズ、クライエントからも消す
+// delete ClientFD, and _client.
 void	Server::disconnectClient(int fd)
 {
 	// erase from _poll_fds
@@ -266,7 +266,7 @@ rcv_resp	Server::acceptClientMessage(int fd, std::string& cliant_buff)
 		else if (errno == ECONNRESET)
 			return (close_fd);
 		else
-			return (close_fd); // ←huan
+			return (close_fd);
 	}
 }
 
@@ -279,34 +279,35 @@ void	Server::receiveFromClient(int fd)
 	rcv_resp rtn = acceptClientMessage(fd, client->adjBuff());
 	if(rtn == close_fd)
 	{
-		//TODO: close_fd(fd);
-		std::cout << "close_fd(fd)" << std::endl;
+		disconnectClient(fd);
+		std::cout << "client message error, disconnect client." << std::endl;
 		return ;
 	}
 	if (client->getBuff().size() == 0)
 		return ;
 	if (client->getBuff().size() > CLIENT_MAXBUFF)
 	{
-		std::cerr << "err : too large data accept and disconect cliant" << "client->getNickname()" << std::endl; // out ""
-		//TODO: close_fd(fd);
-		std::cout << "close_fd(fd)" << std::endl;
+		std::cerr << "err: too large data accept and disconnect client" << "client->getNickname()" << std::endl;
+		disconnectClient(fd);
+		std::cout << "disconnect client." << std::endl;
 		return ;
 	}
 	while(client->devBuff("\r\n"))
 	{
 		if (client->getCmd().size() > CMD_MAXBUFF)
 		{
-			std::cerr << "err : too large cmdline accept and disconect cliant" << "cliint->getNickname()" << std::endl; // out ""
-			//TODO: close_fd(fd);
-			std::cout << "close_fd(fd)" << std::endl;
+			std::cerr << "err: too large cmdline accept and disconnect client" << "client->getNickname()" << std::endl;
+			disconnectClient(fd);
+			std::cout << "disconnect client." << std::endl;
 			return ;	
 		}
 		ParsedMessage pmsg;
 		mkPmsg(client->getCmd(),pmsg);
+
+		// debug
 		std::cout << "\033[31m --------- Received --------- \033[m" << std::endl;
-		printPmsg(pmsg); //for debag
+		printPmsg(pmsg);
 		std::cout << "\033[31m ---------    End    --------- \033[m" << std::endl;	
 	}
-
 	return ;
 }
