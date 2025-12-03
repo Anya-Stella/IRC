@@ -69,9 +69,15 @@ void	Server::run()
 		// poll()
 		if (_poll_fds.empty())
 			throw std::runtime_error("no fds to poll");
+
+		std::cout << "これから待つよ\n" << std::endl; //TODO:
+		std::cout << _poll_fds.size() << std::endl;//TODO:
+
 		int	nready = ::poll(&_poll_fds[0], _poll_fds.size(), -1);
 		if (nready < 0)
 			throw std::runtime_error("poll failed");
+
+		std::cout << "松の終わり\n" << std::endl;//TODO:
 		
 		// scanning
 		for (size_t	i = 0; i < _poll_fds.size(); ++i)	
@@ -174,7 +180,6 @@ void	Server::acceptNewClient()
 				continue;
 			throw std::runtime_error("accept failed.");
 		}
-		
 
 		// NONBLOCK
 		if (::fcntl(cfd, F_SETFL, O_NONBLOCK) < 0) {
