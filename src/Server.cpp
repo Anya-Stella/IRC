@@ -193,7 +193,6 @@ void	Server::acceptNewClient()
 		// register client
 		_clients[cfd] = new Client(cfd);
 
-
 		std::cout << "Accepted " << cfd << " " << std::endl; 
 	}
 }

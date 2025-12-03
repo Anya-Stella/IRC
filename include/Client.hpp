@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <sys/socket.h>
 #define CLIENT_MAXBUFF 8192	// mkuida
 #define CMD_MAXBUFF 512		// mkuida
 
@@ -43,7 +44,6 @@ public:
 	bool		hasNick() const { return !_nickname.empty(); }
 	void		setNick(std::string n) { _nickname = n; }
 	bool		readyToRegister() const;
-	void		setRegistered(bool status);
 
 	/*USER*/
 	void		setUsername(const std::string &name) { _username = name; }

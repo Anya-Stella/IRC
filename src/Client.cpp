@@ -21,9 +21,37 @@ std::string Client::getNickname() const {
     return _nickname;
 }
 
-/*メッセージ表示*/
+/*メッセージを送信*/
 void Client::sendMessage(const std::string &msg) {
-    std::cout << "Message to " << _nickname << ": " << msg;
+    // std::cout << "Message to " << _nickname << ": " << msg;
+
+	std::string	wire = msg;
+
+	if (wire.size() < 2 || wire.substr(wire.size() - 2) != "\r\n")
+	{
+		wire += "\r\n";
+	}
+
+	const char	*buf = wire.c_str();
+	size_t		len = wire.size();
+	ssize_t		n;
+
+	while (len > 0)
+	{
+		n = ::send(_fd, buf, len, MSG_NOSIGNAL);
+		if (n < 0)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				break;
+			}
+			std::cerr << "send() failed to " << _nickname << ": " << std::strerror(errno) << std::endl;
+            break;
+		}
+		buf += n;
+		len -= n;
+	}
+	std::cout << ">>> to " << _nickname << ": " << wire;
 }
 
 /*PASS*/
@@ -79,8 +107,4 @@ bool Client::isFullyRegistered() const {
 
 bool Client::readyToRegister() const {
 	return isFullyRegistered() && !_registered;
-}
-
-void Client::setRegistered(bool status) {
-	_registered = status;
 }
