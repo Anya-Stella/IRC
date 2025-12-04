@@ -12,6 +12,7 @@ SRC := \
 		Client.cpp \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
+		CMDS/handleCAP.cpp \
 		CMDS/handleNICK.cpp \
 		CMDS/handlePASS.cpp \
 		CMDS/handleUSER.cpp \
