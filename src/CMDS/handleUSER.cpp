@@ -22,12 +22,11 @@ void Server::handleUSER(Client &c, const std::vector<std::string> &params)
 
     c.setUsername(username);
     c.setRealname(realname);
-
     c.setHasUser(true);
 
     // 4. 登録完了チェック
-    if (c.readyToRegister())
-    {
+    if (c.tryToRegister())
         sendWelcome(c);
-    }
+
+    std::cout << "USER CMD DONE" << std::endl;
 }

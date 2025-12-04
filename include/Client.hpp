@@ -42,8 +42,9 @@ public:
 
 	/*NICK*/
 	bool		hasNick() const { return !_nickname.empty(); }
+	void		changeHasNicktoTrue() { if (!_hasNick) _hasNick = true; }
 	void		setNick(std::string n) { _nickname = n; }
-	bool		readyToRegister() const;
+	bool		tryToRegister();
 
 	/*USER*/
 	void		setUsername(const std::string &name) { _username = name; }

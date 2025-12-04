@@ -101,6 +101,8 @@ bool Client::isFullyRegistered() const {
     return _passAccepted && _hasNick && _hasUser;
 }
 
-bool Client::readyToRegister() const {
-	return isFullyRegistered() && !_registered;
+bool Client::tryToRegister()
+{	
+	if (!_registered && isFullyRegistered())
+		_registered = true;
 }

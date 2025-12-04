@@ -95,17 +95,19 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
         c.sendMessage("433 NICK :Nickname is already in use\r\n");
         return;
     }
-    // 4. ニックネーム変更通知（既にニックネームがある場合
-    //    かつ、クライアントが登録済みの場合のみ）
+
+    // 4. ニックネーム変更通知（既にニックネームがある場合、かつ、クライアントが登録済みの場合のみ）
     if (c.hasNick() && c.isFullyRegistered()) {
         broadcastToAllUserChannels(c, ":" + c.getNickname() + " NICK :" + newNick + "\r\n");
     }
 
     // 5. 更新
     c.setNick(newNick);
+    c.changeHasNicktoTrue();
 
-    // 6. 登録完了チェック
-    if (c.readyToRegister()) {
+    // sendWelcomeChallenge
+    if (c.tryToRegister())
         sendWelcome(c);
-    }
+
+    std::cout << "NICK CMD DONE" << std::endl;
 }
