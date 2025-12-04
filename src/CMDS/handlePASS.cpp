@@ -37,7 +37,7 @@ void Server::handlePASS(Client &c, const std::vector<std::string> &params)
     // PASS 成功！
     c.setPassAccepted(true);
 
-    // ここで NICK + USER が揃っていれば WELCOME を送る
-    if (c.isFullyRegistered())
+    // ここで NICK + USER + PASS が揃っていれば WELCOME を送る
+    if (c.tryToRegister())
         sendWelcome(c);
 }
