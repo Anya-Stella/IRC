@@ -105,4 +105,5 @@ bool Client::tryToRegister()
 {	
 	if (!_registered && isFullyRegistered())
 		_registered = true;
+	return false;
 }
