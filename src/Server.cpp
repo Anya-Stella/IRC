@@ -250,13 +250,15 @@ rcv_resp	Server::acceptClientMessage(int fd, std::string& cliant_buff)
 		ssize_t rsize = recv(fd, buff, sizeof(buff) - 1, 0);
 		if(rsize > 0)
 		{
+			//if readable information is present
 			buff[rsize] = '\0';
 			cliant_buff += buff;
 			continue;
 		}
 		else if(rsize == 0)
 		{
-			return (save_laststr);
+			//if client close fd
+			return (close_fd);
 		}
 		if (errno == EINTR)
 			continue;
@@ -279,7 +281,7 @@ void	Server::receiveFromClient(int fd)
 	if(rtn == close_fd)
 	{
 		disconnectClient(fd);
-		std::cout << "client message error, disconnect client." << std::endl;
+		std::cout << "disconnect client.(An error occurred or the connection was lost.)" << std::endl;
 		return ;
 	}
 	if (client->getBuff().size() == 0)
