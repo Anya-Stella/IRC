@@ -7,6 +7,8 @@ void Server::sendWelcome(Client &c)
     c.sendMessage(":server 001 " + nick + " :Welcome to the IRC Network\r\n");
     c.sendMessage(":server 002 " + nick + " :Your host is server\r\n");
     c.sendMessage(":server 003 " + nick + " :This server was created ...\r\n");
+
+    std::cout << c.getNickname() << " join this server!!" << std::endl;
 }
 
 void Server::handlePASS(Client &c, const std::vector<std::string> &params)

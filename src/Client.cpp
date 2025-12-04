@@ -104,6 +104,10 @@ bool Client::isFullyRegistered() const {
 bool Client::tryToRegister()
 {	
 	if (!_registered && isFullyRegistered())
+	{
 		_registered = true;
+		std::cout << _nickname << "varified, complete!" << std::endl;
+		return true;
+	}
 	return false;
 }
