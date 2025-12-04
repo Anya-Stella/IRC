@@ -27,6 +27,4 @@ void Server::handleUSER(Client &c, const std::vector<std::string> &params)
     // 4. 登録完了チェック
     if (c.tryToRegister())
         sendWelcome(c);
-
-    std::cout << "USER CMD DONE" << std::endl;
 }

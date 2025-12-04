@@ -108,6 +108,4 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
     // sendWelcomeChallenge
     if (c.tryToRegister())
         sendWelcome(c);
-
-    std::cout << "NICK CMD DONE" << std::endl;
 }
