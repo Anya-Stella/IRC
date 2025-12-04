@@ -15,11 +15,11 @@
 #include "Client.hpp"
 #include "Utils.hpp"
 
-#define RCV_MAXBUFF 1024 //rcv_message mkuida
+#define RCV_MAXBUFF 1024 //　rcv_message mkuida
 struct ParsedMessage;
 class Channel;
 
-typedef enum	//mkuida
+typedef enum	//　mkuida
 {
 	save_getstr,
 	save_laststr,
