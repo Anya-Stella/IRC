@@ -94,17 +94,10 @@ void	Server::run()
 				}
 			}
 
-			// other flag?
-			//TODO:
-			// if (p.revents & POLLOUT)
-			// {
-
-			// }
-
-			// if (p.revents & (POLLERR | POLLHUP | POLLNVAL))
-			// {
-
-			// }
+			if (p.revents & (POLLERR | POLLHUP | POLLNVAL))
+			{
+				disconnectClient(p.fd);
+			}
 		}
 	}
 }

@@ -23,8 +23,6 @@ std::string Client::getNickname() const {
 
 /*メッセージを送信*/
 void Client::sendMessage(const std::string &msg) {
-    // std::cout << "Message to " << _nickname << ": " << msg;
-
 	std::string	wire = msg;
 
 	if (wire.size() < 2 || wire.substr(wire.size() - 2) != "\r\n")
@@ -51,7 +49,7 @@ void Client::sendMessage(const std::string &msg) {
 		buf += n;
 		len -= n;
 	}
-	std::cout << ">>> to " << _nickname << ": " << wire;
+	std::cout << ">>> to " << _nickname << "😃 " <<  wire;
 }
 
 /*PASS*/
