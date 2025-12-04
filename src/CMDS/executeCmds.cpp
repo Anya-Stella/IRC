@@ -5,7 +5,11 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
 {
     (void)  c;
 
-    if (msg.command == "NICK")
+    if (msg.command == "CAP")
+    {
+        handleCAP(c, msg.params);
+    }
+    else if (msg.command == "NICK")
     {
         handleNICK(c, msg.params);
     }

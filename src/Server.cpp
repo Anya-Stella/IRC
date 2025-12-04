@@ -21,7 +21,7 @@ namespace
 }
 
 /* default */
-Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels()
+Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels(), _server_name("mtkIRC")
 {
 	std::cout << "Generate Server ..." << std::endl;
 	try
@@ -298,13 +298,13 @@ void	Server::receiveFromClient(int fd)
 		ParsedMessage pmsg;
 		mkPmsg(client->getCmd(),pmsg);
 
-		// execute
-		executeCmds(*client, pmsg);
-
 		//TODO: debug
 		std::cout << "\033[31m --------- Received --------- \033[m" << std::endl;
 		printPmsg(pmsg);
 		std::cout << "\033[31m ---------    End    --------- \033[m" << std::endl;	
+
+		// execute
+		executeCmds(*client, pmsg);
 	}
 	return ;
 }

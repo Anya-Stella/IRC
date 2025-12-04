@@ -35,6 +35,7 @@ private:
 	std::map<int, Client*>	_clients;
 	std::string				_password;
 	std::map<std::string, Channel*> _channels; // サーバすべてのチャンネル名のリスト
+	std::string				_server_name;
 
 
 	/* utils */
@@ -45,6 +46,7 @@ private:
 
 	/* cmds */
 	void	executeCmds(Client &c, const ParsedMessage &msg);
+	void	handleCAP(Client &c, const std::vector<std::string> &params);
 	void	handleNICK(Client &c, const std::vector<std::string> &params);
 	void 	handlePASS(Client &c, const std::vector<std::string> &params);
 	void 	handleUSER(Client &c, const std::vector<std::string> &params);

@@ -25,10 +25,8 @@ std::string Client::getNickname() const {
 void Client::sendMessage(const std::string &msg) {
 	std::string	wire = msg;
 
-	if (wire.size() < 2 || wire.substr(wire.size() - 2) != "\r\n")
-	{
+	if (wire.size() < 2 || wire[wire.size() - 2] != '\r' || wire[wire.size() - 1] != '\n')
 		wire += "\r\n";
-	}
 
 	const char	*buf = wire.c_str();
 	size_t		len = wire.size();
@@ -37,7 +35,7 @@ void Client::sendMessage(const std::string &msg) {
 	while (len > 0)
 	{
 		n = ::send(_fd, buf, len, MSG_NOSIGNAL);
-		if (n < 0)
+		if (n <= 0)
 		{
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 			{
