@@ -20,9 +20,8 @@ namespace
 	}
 }
 
-
 /* default */
-Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password)
+Server::Server(int port, std::string &password) : _listen_fd(-1), _password(password), _channels(), _server_name("mtkIRC")
 {
 	std::cout << "Generate Server ..." << std::endl;
 	try
@@ -50,7 +49,7 @@ Server::Server(int port, std::string &password) : _listen_fd(-1), _password(pass
 Server::~Server()
 {
 	// close client_FD
-	for( std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	for( std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		::close(it->first);
 
 	// close server_FD
@@ -70,14 +69,9 @@ void	Server::run()
 		if (_poll_fds.empty())
 			throw std::runtime_error("no fds to poll");
 
-		std::cout << "これから待つよ\n" << std::endl; //TODO:
-		std::cout << _poll_fds.size() << std::endl;//TODO:
-
 		int	nready = ::poll(&_poll_fds[0], _poll_fds.size(), -1);
 		if (nready < 0)
 			throw std::runtime_error("poll failed");
-
-		std::cout << "松の終わり\n" << std::endl;//TODO:
 		
 		// scanning
 		for (size_t	i = 0; i < _poll_fds.size(); ++i)	
@@ -95,17 +89,10 @@ void	Server::run()
 				}
 			}
 
-			// other flag?
-			//TODO:
-			// if (p.revents & POLLOUT)
-			// {
-
-			// }
-
-			// if (p.revents & (POLLERR | POLLHUP | POLLNVAL))
-			// {
-
-			// }
+			if (p.revents & (POLLERR | POLLHUP | POLLNVAL))
+			{
+				disconnectClient(p.fd);
+			}
 		}
 	}
 }
@@ -143,7 +130,7 @@ void	Server::setupListenSocket_(int port)
 	   It is associated with the queue. */
 }
 
-// poll_fdから消去、fdをクローズ、クライエントからも消す
+// delete ClientFD, and _client.
 void	Server::disconnectClient(int fd)
 {
 	// erase from _poll_fds
@@ -192,7 +179,7 @@ void	Server::acceptNewClient()
 		_poll_fds.push_back(p);
 
 		// register client
-		_clients.insert(std::make_pair(cfd, Client(cfd)));
+		_clients[cfd] = new Client(cfd);
 
 		std::cout << "Accepted " << cfd << " " << std::endl; 
 	}
@@ -201,9 +188,9 @@ void	Server::acceptNewClient()
 
 Client* Server::getClientPtr(int fd)
 {
-	std::map<int, Client>::iterator it = _clients.find(fd);
+	std::map<int, Client*>::iterator it = _clients.find(fd);
 	if (it != _clients.end())
-		return &(it->second);
+		return (it->second);
 	return NULL;
 }
 
@@ -251,13 +238,15 @@ rcv_resp	Server::acceptClientMessage(int fd, std::string& cliant_buff)
 		ssize_t rsize = recv(fd, buff, sizeof(buff) - 1, 0);
 		if(rsize > 0)
 		{
+			//if readable information is present
 			buff[rsize] = '\0';
 			cliant_buff += buff;
 			continue;
 		}
 		else if(rsize == 0)
 		{
-			return (save_laststr);
+			//if client close fd
+			return (close_fd);
 		}
 		if (errno == EINTR)
 			continue;
@@ -266,7 +255,7 @@ rcv_resp	Server::acceptClientMessage(int fd, std::string& cliant_buff)
 		else if (errno == ECONNRESET)
 			return (close_fd);
 		else
-			return (close_fd); // ←huan
+			return (close_fd);
 	}
 }
 
@@ -279,34 +268,33 @@ void	Server::receiveFromClient(int fd)
 	rcv_resp rtn = acceptClientMessage(fd, client->adjBuff());
 	if(rtn == close_fd)
 	{
-		//TODO: close_fd(fd);
-		std::cout << "close_fd(fd)" << std::endl;
+		disconnectClient(fd);
+		std::cout << "disconnect client.(An error occurred or the connection was lost.)" << std::endl;
 		return ;
 	}
 	if (client->getBuff().size() == 0)
 		return ;
 	if (client->getBuff().size() > CLIENT_MAXBUFF)
 	{
-		std::cerr << "err : too large data accept and disconect cliant" << "client->getNickname()" << std::endl; // out ""
-		//TODO: close_fd(fd);
-		std::cout << "close_fd(fd)" << std::endl;
+		std::cerr << "err: too large data accept and disconnect client" << "client->getNickname()" << std::endl;
+		disconnectClient(fd);
+		std::cout << "disconnect client." << std::endl;
 		return ;
 	}
 	while(client->devBuff("\r\n"))
 	{
 		if (client->getCmd().size() > CMD_MAXBUFF)
 		{
-			std::cerr << "err : too large cmdline accept and disconect cliant" << "cliint->getNickname()" << std::endl; // out ""
-			//TODO: close_fd(fd);
-			std::cout << "close_fd(fd)" << std::endl;
+			std::cerr << "err: too large cmdline accept and disconnect client" << "client->getNickname()" << std::endl;
+			disconnectClient(fd);
+			std::cout << "disconnect client." << std::endl;
 			return ;	
 		}
 		ParsedMessage pmsg;
 		mkPmsg(client->getCmd(),pmsg);
-		std::cout << "\033[31m --------- Received --------- \033[m" << std::endl;
-		printPmsg(pmsg); //for debag
-		std::cout << "\033[31m ---------    End    --------- \033[m" << std::endl;	
-	}
 
+		// execute
+		executeCmds(*client, pmsg);
+	}
 	return ;
 }

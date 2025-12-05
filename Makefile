@@ -7,12 +7,26 @@ OBJ_DIR := bin
 
 ############################################################### SRCS ##############################################################
 SRC := \
-		Utils.cpp \
 		Channel.cpp \
+		Utils.cpp \
 		Client.cpp \
 		Server.cpp \
 		CMDS/executeCmds.cpp \
+		CMDS/handleCAP.cpp \
 		CMDS/handleNICK.cpp \
+		CMDS/handlePASS.cpp \
+		CMDS/handleUSER.cpp \
+		CMDS/handlePING.cpp \
+		CMDS/handlePONG.cpp \
+		CMDS/handleJOIN.cpp \
+		CMDS/handlePART.cpp \
+		CMDS/handlePRIVMSG.cpp \
+		CMDS/handleNOTICE.cpp \
+		CMDS/handleKICK.cpp \
+		CMDS/handleQUIT.cpp \
+		CMDS/handleINVITE.cpp \
+		CMDS/handleTOPIC.cpp \
+		CMDS/handleMODE.cpp \
 		main.cpp
 
 
