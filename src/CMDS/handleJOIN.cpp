@@ -65,13 +65,21 @@ void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
         return;
     }
 
-    // 参加登録
+    // --- 参加処理 ---
     channel->addClient(&c);
     c.joinChannel(channelName);
+
+    // --- ★ 最初の参加者は OP（チャネルオペレーター）にする ---
+    if (channel->getClients().size() == 1) {
+        channel->addOperator(c.getFd());
+        // OP がついたことを通知
+        broadcastToChannel(*channel, ":" + c.getNickname() +
+                           " MODE " + channelName + " +o " + c.getNickname() + "\r\n");
+    }
 
     // 通知
     broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName);
 
-    // ユーザー一覧送信
+    // NAMES リスト送信
     sendNamesReply(c, *channel);
 }

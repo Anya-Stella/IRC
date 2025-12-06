@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <sys/socket.h>
+#include <cerrno>
 #define CLIENT_MAXBUFF 8192	// mkuida
 #define CMD_MAXBUFF 512		// mkuida
 
