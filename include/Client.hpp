@@ -5,6 +5,7 @@
 #include <vector>
 #include <sys/socket.h>
 #include <cerrno>
+#include <set>
 #define CLIENT_MAXBUFF 8192	// mkuida
 #define CMD_MAXBUFF 512		// mkuida
 
@@ -20,6 +21,7 @@ private:
     std::string					_realname;
 	std::vector<std::string>	_channels;
 	time_t						_lastPongTime;
+	std::set<std::string> 		_joinedChannels;
 	std::string					_buff;	//mkuida
 	std::string					_cmd;	//mkuida
 
@@ -58,7 +60,14 @@ public:
 	/*JOIN*/
 	void		joinChannel(const std::string& name) { _channels.push_back(name); }
     void		partChannel(const std::string& name);
-    const std::vector<std::string>& getChannels() const { return _channels; }
+    const 		std::vector<std::string>& getChannels() const { return _channels; }
+	void 		leaveChannel(const std::string &name) {_joinedChannels.erase(name);}
+    const 		std::set<std::string>& getJoinedChannels() const {return _joinedChannels;}
+	std::vector<std::string> getAllChannels() const {
+        return std::vector<std::string>(_joinedChannels.begin(), _joinedChannels.end());
+    }
+	
+
 
 	/* cmd */
 	const std::string& getBuff( void ) const;	//mkuida

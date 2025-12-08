@@ -75,6 +75,12 @@ private:
 	/*JOIN*/
 	void	broadcastToChannel(Channel& ch, const std::string& message);
 	void	sendNamesReply(Client& c, const Channel& channel);
+	void 	partClientFromAllChannels(Client &c);
+	void 	joinSingleChannel(Client &c, const std::string &channelName, const std::string &key);
+
+	
+	// void 	joinSingleChannel(Client &c, const std::string &channelName, const std::string &key);
+
 	/*PART*/
 	std::vector<std::string> splitChannels(const std::string& param);
 	std::string 	trim(const std::string& s);

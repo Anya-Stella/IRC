@@ -1,5 +1,7 @@
 #include "../../include/Server.hpp"
 #include "../../include/Channel.hpp"
+#include "../../include/Client.hpp"
+#include "../../include/Utils.hpp"
 
 //あるチャンネルに属する全員へ通知する(Channel& → 全メンバーへ送信)
 void Server::broadcastToChannel(Channel& ch, const std::string& message)
@@ -42,40 +44,60 @@ void Server::sendNamesReply(Client& c, const Channel& channel)
                   " " + channel.getName() + " :End of /NAMES list\r\n");
 }
 
-void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
+void Server::partClientFromAllChannels(Client &c)
 {
-    if (params.empty()) {
-        c.sendMessage("461 JOIN :Not enough parameters\r\n");
-        return;
+    std::vector<std::string> channels = c.getAllChannels();
+
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        std::string name = channels[i];
+
+        if (_channels.count(name))
+        {
+            Channel* ch = _channels[name];
+
+            // Broadcast: <nick> PART #channel
+            broadcastToChannel(*ch, ":" + c.getNickname() + " PART " + name + "\r\n");
+
+            // Channel から削除
+            ch->removeClient(&c);
+        }
+
+        // Client 側も削除
+        c.leaveChannel(name);
     }
+}
 
-    const std::string &channelName = params[0];
-    std::string key = (params.size() > 1) ? params[1] : "";
+void Server::joinSingleChannel(Client &c, const std::string &channelName, const std::string &key)
+{
+    // チャンネルがすでに存在するか確認
+    Channel *channel;
 
-    // チャンネル存在確認・作成
-    Channel* channel = NULL;
     if (_channels.count(channelName))
         channel = _channels[channelName];
     else
-        channel = new Channel(channelName), _channels[channelName] = channel;
+    {
+        channel = new Channel(channelName);
+        _channels[channelName] = channel;
 
-    // 条件チェック（key, inviteOnly, userLimit など）
-    if (!channel->canJoin(c, key)) {
-        c.sendMessage("Cannot join channel...\r\n"); 
+        // ---- ここ大事！最初の参加者に OP 付与 ----
+        channel->addOperator(c.getFd());
+    }
+
+    // JOIN 可能か（invite-only / key / userLimit）
+    if (!channel->canJoin(c, key))
+    {
+        c.sendMessage(":ircserv 475 " + channelName + " :Cannot join channel\r\n");
         return;
     }
 
-    // --- 参加処理 ---
+    // すでに参加しているなら何もしない
+    if (channel->hasClient(&c))
+        return;
+
+    // 参加処理
     channel->addClient(&c);
     c.joinChannel(channelName);
-
-    // --- ★ 最初の参加者は OP（チャネルオペレーター）にする ---
-    if (channel->getClients().size() == 1) {
-        channel->addOperator(c.getFd());
-        // OP がついたことを通知
-        broadcastToChannel(*channel, ":" + c.getNickname() +
-                           " MODE " + channelName + " +o " + c.getNickname() + "\r\n");
-    }
 
     // 通知
     broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName);
@@ -83,3 +105,82 @@ void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
     // NAMES リスト送信
     sendNamesReply(c, *channel);
 }
+
+
+void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
+{
+    if (params.empty()) {
+        c.sendMessage("461 JOIN :Not enough parameters\r\n");
+        return;
+    }
+
+    // JOIN 0 → 全てのチャンネルから抜ける
+#ifdef DEBUG_MODE
+    std::cerr << "[DEBUG] params[0] = '" << params[0] << "'" << std::endl;
+#endif
+
+    std::string target = trim(params[0]);
+    if (target == "0" || target == "#0") {
+        partClientFromAllChannels(c);
+        return;
+    }
+
+
+    // 複数チャンネル・複数キーの処理
+    std::vector<std::string> chList = split(params[0], ',');
+    std::vector<std::string> keyList;
+
+    if (params.size() > 1)
+        keyList = split(params[1], ',');
+
+    for (size_t i = 0; i < chList.size(); i++)
+    {
+        std::string channelName = chList[i];
+        std::string key = (i < keyList.size()) ? keyList[i] : "";
+
+        joinSingleChannel(c, channelName, key);
+    }
+}
+
+
+// void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
+// {
+//     if (params.empty()) {
+//         c.sendMessage("461 JOIN :Not enough parameters\r\n");
+//         return;
+//     }
+
+//     const std::string &channelName = params[0];
+//     std::string key = (params.size() > 1) ? params[1] : "";
+
+//     // チャンネル存在確認・作成
+//     Channel* channel = NULL;
+//     if (_channels.count(channelName))
+//         channel = _channels[channelName];
+//     else
+//         channel = new Channel(channelName), _channels[channelName] = channel;
+
+//     // 条件チェック（key, inviteOnly, userLimit など）
+//     if (!channel->canJoin(c, key)) {
+//         c.sendMessage("Cannot join channel...\r\n"); 
+//         return;
+//     }
+
+//     // --- 参加処理 ---
+//     channel->addClient(&c);
+//     c.joinChannel(channelName);
+
+//     // --- ★ 最初の参加者は OP（チャネルオペレーター）にする ---
+//     if (channel->getClients().size() == 1) {
+//         channel->addOperator(c.getFd());
+//         // OP がついたことを通知
+//         broadcastToChannel(*channel, ":" + c.getNickname() +
+//                            " MODE " + channelName + " +o " + c.getNickname() + "\r\n");
+//     }
+
+//     // 通知
+//     broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName);
+
+//     // NAMES リスト送信
+//     sendNamesReply(c, *channel);
+// }
