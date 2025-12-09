@@ -37,12 +37,9 @@ std::vector<std::string> Server::splitChannels(const std::string& param)
         //  erase は文字列から指定範囲を削除する関数
         //  std::remove_if はアルゴリズムの一種で 「条件を満たす要素を末尾に寄せる」
         ch.erase(std::remove_if(ch.begin(), ch.end(), ::isspace), ch.end());
-it 
+
         // --- 3. '#' が無い場合は補う
         if (ch[0] != '#')
- 
-        // --- 3. '#' or '&' が無い場合は補う
-        if (ch[0] != '#' && ch[0] != '&')
             ch = "#" + ch;
 
         // --- 4. チャンネル名のバリデーション ---

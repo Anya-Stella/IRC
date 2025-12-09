@@ -1,4 +1,4 @@
-g#include <string>
+#include <string>
 #include "../../include/Server.hpp"
 
 void	Server::executeCmds(Client &c, const ParsedMessage &msg)
