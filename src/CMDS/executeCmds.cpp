@@ -45,9 +45,25 @@ void	Server::executeCmds(Client &c, const ParsedMessage &msg)
     {
         handleQUIT(c, msg.params);
     }
-    else if (msg.command == "QUIT")
+    else if (msg.command == "INVITE")
     {
         handleINVITE(c, msg.params);
+    }
+    else if (msg.command == "MODE")
+    {
+        handleMODE(c, msg.params);
+    }
+    else if (msg.command == "PRIVMSG")
+    {
+        handlePRIVMSG(c, msg.params);
+    }
+    else if (msg.command == "NOTICE")
+    {
+        handleNOTICE(c, msg.params);
+    }
+    else if (msg.command == "TOPIC")
+    {
+        handleTOPIC(c, msg.params);
     }
     else
     {

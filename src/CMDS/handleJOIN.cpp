@@ -126,6 +126,7 @@ void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
     std::string target = trim(params[0]);
     if (target == "0" || target == "#0") {
         partClientFromAllChannels(c);
+        c.sendMessage(":ircserv 000 " + c.getNickname() + " :You have left all channels\r\n");
         return;
     }
 
