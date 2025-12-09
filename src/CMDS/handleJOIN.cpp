@@ -24,9 +24,13 @@ void Server::sendNamesReply(Client& c, const Channel& channel)
     for (std::map<int, Client*>::const_iterator it = members.begin();
          it != members.end(); ++it)
     {
-        names += it->second->getNickname() + " "; // スペース区切りで追加
+        // オペレーターの場合はニックネームの前に '@' を付ける
+        if (channel.isOperator(it->first)) {
+            names += "@";
+        }
+        names += it->second->getNickname() + " ";
     }
-
+ 
     // 最後の余分な空白を削除
     if (!names.empty())
         names.erase(names.size() - 1);
