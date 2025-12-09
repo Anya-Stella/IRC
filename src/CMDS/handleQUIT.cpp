@@ -3,49 +3,23 @@
 
 void Server::handleQUIT(Client& c, const std::vector<std::string>& params)
 {
-    // 1. 終了理由（reason）を決定
+    // 1. 終了理由（reason）を取得
     std::string reason;
     if (params.empty())
         reason = "Client Quit";
     else
         reason = params[0];  // 先頭の ":" はそのままでもよい
 
-    // 2. 全チャンネルに QUIT 通知を送る
+    // 2. 参加している全チャンネルに QUIT 通知を送信
     std::string quitMsg =
-        ":" + c.getNickname() + " QUIT :" + reason + "\r\n";
-
+        ":" + c.getNickname() + " QUIT :Quit: " + reason + "\r\n";
     broadcastToAllUserChannels(c, quitMsg);
 
-    // 3. 全チャンネルからクライアントを削除
-    const std::vector<std::string>& joined = c.getChannels();
+    // 3. クライアントにERRORメッセージを送信して切断を通知
+    c.sendMessage("ERROR :Closing link: (" + c.getNickname() + ") [Quit: " + reason + "]\r\n");
 
-    for (size_t i = 0; i < joined.size(); i++)
-    {
-        const std::string& name = joined[i];
-
-        //count(std::map や std::set に対して キーが存在するかどうか調べる関数)
-        if (_channels.count(name) == 0)
-            continue;
-
-        Channel* ch = _channels[name];
-        ch->removeClient(&c);
-
-        // 空になったチャンネルは削除
-        if (ch->isEmpty())
-        {
-            delete ch;
-            //erase(map, set, vector などに共通してある 要素削除メソッド)
-            _channels.erase(name);
-        }
-    }
-
-    // 4. サーバーのクライアントリストから削除
-    int fd = c.getFd();
-    _clients.erase(fd);
-
-    // 5. ソケットを閉じる
-    close(fd);
-
-    // 6. クライアントを delete
-    delete &c;
+    // 4. サーバーからクライアントを切断する
+    // この関数は、チャンネルからの退出、メモリ解放、ソケットクローズなど、
+    // すべての後処理を行う。
+    disconnectClient(c.getFd());
 }

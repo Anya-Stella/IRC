@@ -1,4 +1,5 @@
 #include "../include/Server.hpp"
+#include "../include/Channel.hpp"
 
 /* subUtils */
 namespace
@@ -133,23 +134,47 @@ void	Server::setupListenSocket_(int port)
 // delete ClientFD, and _client.
 void	Server::disconnectClient(int fd)
 {
+	// 1. クライアントポインタを取得
+	std::map<int, Client*>::iterator it_client = _clients.find(fd);
+	if (it_client == _clients.end()) {
+		return; // すでに切断済み
+	}
+	Client* client = it_client->second;
+	std::string nick = client->getNickname();
+
+	// 2. 参加している全チャンネルからクライアントを削除
+	//    イテレータ無効化を避けるため、チャンネル名をコピーしてからループ
+	std::vector<std::string> channelNames = client->getAllChannels();
+	for (size_t i = 0; i < channelNames.size(); ++i) {
+		const std::string& channelName = channelNames[i];
+		std::map<std::string, Channel*>::iterator it_ch = _channels.find(channelName);
+		if (it_ch != _channels.end()) {
+			Channel* channel = it_ch->second;
+			channel->removeClient(client);
+			if (channel->isEmpty()) {
+				_channels.erase(it_ch);
+				delete channel;
+			}
+		}
+	}
+
 	// erase from _poll_fds
-	for (std::vector<pollfd>::iterator it = _poll_fds.begin(); it != _poll_fds.end(); ++it)
+	for (std::vector<pollfd>::iterator it_poll = _poll_fds.begin(); it_poll != _poll_fds.end(); ++it_poll)
 	{
-		if (it->fd == fd)
+		if (it_poll->fd == fd)
 		{
-			_poll_fds.erase(it);
+			_poll_fds.erase(it_poll);
 			break;
 		}
 	}
 		
-	// erase from _clients
-	_clients.erase(fd);
+	// 4. リソースを解放
+	std::cout << "Client " << nick << " (fd: " << fd << ") disconnected." << std::endl;
+	_clients.erase(it_client); // _clientsマップから削除
+	delete client;             // Clientオブジェクトを解放
 
 	// close fd
 	::close(fd);
-
-	std::cout << "disconnect Client." << std::endl;
 }
 
 // Handling Multiple connection requests

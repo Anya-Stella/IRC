@@ -69,6 +69,9 @@ void Server::broadcastToAllUserChannels(Client& sender, const std::string& messa
         for (std::map<int, Client*>::const_iterator it = members.begin();
              it != members.end(); ++it)
         {
+            // 送信者自身には送らない
+            if (it->second->getFd() == sender.getFd())
+                continue;
             it->second->sendMessage(message);
         }
     }
