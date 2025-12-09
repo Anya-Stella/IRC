@@ -49,8 +49,12 @@ public:
     void setTopic(const std::string& t) { _topic = t; }
 
     /* --- INVITE 管理 --- */
-    void addInvite(int fd);
-    bool isInvited(int fd) const;
+    void addInvite(int fd) {
+        _invited.insert(fd);
+    }
+    bool isInvited(int fd) const {
+        return _invited.count(fd) > 0;
+    }
 
     /* --- OP 管理（統一版） --- */
     bool isOperator(int fd) const { return _operators.count(fd) > 0; }
