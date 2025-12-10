@@ -2,17 +2,6 @@
 #include "../../include/Channel.hpp"
 #include "../../include/Client.hpp"
 #include "../../include/Utils.hpp"
-
-//あるチャンネルに属する全員へ通知する(Channel& → 全メンバーへ送信)
-void Server::broadcastToChannel(Channel& ch, const std::string& message)
-{
-    const std::map<int, Client*>& members = ch.getClients();
-    for (std::map<int, Client*>::const_iterator it = members.begin();
-         it != members.end(); ++it)
-    {
-        it->second->sendMessage(message);
-    }
-}
 // 新しく参加したクライアントにチャンネルの参加者一覧（NAMES リスト）を送信する関数
 void Server::sendNamesReply(Client& c, const Channel& channel)
 {
@@ -64,7 +53,7 @@ void Server::partClientFromAllChannels(Client &c)
             ch->removeClient(&c);
 
             // Broadcast: <nick> QUIT :Client Quit
-            broadcastToChannel(*ch, ":" + c.getNickname() + " QUIT :Client Quit\r\n");
+            broadcastToChannel(*ch, ":" + c.getNickname() + " QUIT :Client Quit\r\n", &c);
         }
 
         // Client 側も削除
@@ -74,6 +63,11 @@ void Server::partClientFromAllChannels(Client &c)
 
 void Server::joinSingleChannel(Client &c, const std::string &channelName, const std::string &key)
 {
+    // クライアントがすでに対象チャンネルに参加していると認識している場合は、何もしない
+    if (c.getJoinedChannels().count(channelName)) {
+        return;
+    }
+
     Channel *channel;
     bool isNewChannel = false;
 
@@ -102,16 +96,12 @@ void Server::joinSingleChannel(Client &c, const std::string &channelName, const 
         return;
     }
 
-    // すでに参加しているなら何もしない
-    if (channel->hasClient(&c))
-        return;
-
     // 参加処理
     channel->addClient(&c);
     c.joinChannel(channelName);
 
     // 通知
-    broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName);
+    broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName + "\r\n", NULL);
 
     // NAMES リスト送信
     sendNamesReply(c, *channel);

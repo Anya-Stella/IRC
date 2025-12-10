@@ -19,7 +19,6 @@ private:
 	std::string					_nickname;
 	std::string					_username;
     std::string					_realname;
-	std::vector<std::string>	_channels;
 	time_t						_lastPongTime;
 	std::set<std::string> 		_joinedChannels;
 	std::string					_buff;	//mkuida
@@ -58,9 +57,7 @@ public:
 	void		updatePongTime(){ _lastPongTime = time(NULL); }
 	
 	/*JOIN*/
-	void		joinChannel(const std::string& name) { _channels.push_back(name); }
-    void		partChannel(const std::string& name);
-    const 		std::vector<std::string>& getChannels() const { return _channels; }
+	void		joinChannel(const std::string& name) { _joinedChannels.insert(name); }
 	void 		leaveChannel(const std::string &name) {_joinedChannels.erase(name);}
     const 		std::set<std::string>& getJoinedChannels() const {return _joinedChannels;}
 	std::vector<std::string> getAllChannels() const {

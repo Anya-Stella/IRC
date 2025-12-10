@@ -138,7 +138,7 @@ void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
         // 実際に適用されたモード変更があった場合のみ、ブロードキャストする
         if (!appliedModes.empty()) {
             std::string msg = ":" + sender.getNickname() + " MODE " + channelName + " " + appliedModes + appliedParams + "\r\n";
-            broadcastToChannel(*channel, msg);
+            broadcastToChannel(*channel, msg, NULL);
         }
     } else {
         // ユーザーモード: 自分自身のみ許可

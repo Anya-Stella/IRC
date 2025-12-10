@@ -13,7 +13,7 @@ void	Server::handleCAP(Client &c, const std::vector<std::string> &params)
 	// base
 	if (subcmd == "LS")
 	{
-		c.sendMessage(":" + _server_name + " CAP " + nick + " LS :");
+		c.sendMessage(":" + _server_name + " CAP " + nick + " LS :\r\n");
 
 		return ;
 	}
@@ -24,7 +24,7 @@ void	Server::handleCAP(Client &c, const std::vector<std::string> &params)
 		if (params.size() >= 2)
 			caps = params[1];
 		
-		c.sendMessage(":" + _server_name + " CAP " + nick + " NAK :" + caps);
+		c.sendMessage(":" + _server_name + " CAP " + nick + " NAK :" + caps + "\r\n");
 	}
 	
 	if (subcmd == "END")

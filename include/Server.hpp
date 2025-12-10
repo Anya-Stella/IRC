@@ -67,13 +67,12 @@ private:
 	void 	sendWelcome(Client &c);
 	/*USER*/
 	bool 	isValidNick(const std::string& nickname);
-	bool 	isUsedNick(const std::string& nickname);
+	bool 	isUsedNick(const std::string& nickname, int excludeFd);
 	void	broadcastToAllUserChannels(Client& sender, const std::string& message);
 	/*NICK*/
 	std::string	toUpperCaseString(const std::string& n);
 
 	/*JOIN*/
-	void	broadcastToChannel(Channel& ch, const std::string& message);
 	void	sendNamesReply(Client& c, const Channel& channel);
 	void 	partClientFromAllChannels(Client &c);
 	void 	joinSingleChannel(Client &c, const std::string &channelName, const std::string &key);

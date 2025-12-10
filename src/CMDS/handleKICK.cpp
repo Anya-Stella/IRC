@@ -1,19 +1,6 @@
 #include "../../include/Server.hpp"
 #include "../../include/Channel.hpp"
 
-//クライアントが参加中のチャンネル一覧から、指定のチャンネルを削除する関数
-void Client::partChannel(const std::string& name)
-{
-    for (std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
-    {
-        if (*it == name)
-        {
-            _channels.erase(it);  // 該当チャンネルを削除
-            return;               // 1つだけ削除して終了
-        }
-    }
-}
-
 void Server::handleKICK(Client& sender, const std::vector<std::string>& params)
 {
     // 1. 引数チェック
@@ -49,7 +36,7 @@ void Server::handleKICK(Client& sender, const std::vector<std::string>& params)
 
     // 5. KICK通知をチャンネル全員に送信
     std::string msg = ":" + sender.getNickname() + " KICK " + channelName + " " + targetNick + " :" + comment + "\r\n";
-    broadcastToChannel(*channel, msg);
+    broadcastToChannel(*channel, msg, NULL);
 
     // 6. チャンネルから削除
     channel->removeClient(targetClient);

@@ -44,10 +44,12 @@ std::string	Server::toUpperCaseString(const std::string& n)
 	return(result);
 }
 //NICKの重複チェックしてる関数
-bool    Server::isUsedNick(const std::string& nickname)
+bool    Server::isUsedNick(const std::string& nickname, int excludeFd)
 {
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
+		if (it->first == excludeFd)
+			continue;
 		std::string cNick = it->second->getNickname();
 		//重複には大文字小文字関係ないからすべて大文字で比べる
 		if(toUpperCaseString(cNick) == toUpperCaseString(nickname))
@@ -58,7 +60,7 @@ bool    Server::isUsedNick(const std::string& nickname)
 //そのユーザーが属しているチャンネル全てへ通知する
 void Server::broadcastToAllUserChannels(Client& sender, const std::string& message)
 {
-    const std::vector<std::string>& userChannels = sender.getChannels();
+    const std::vector<std::string> userChannels = sender.getAllChannels();
 
     for (size_t i = 0; i < userChannels.size(); i++)
     {
@@ -94,7 +96,7 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
         return;
     }
 	 // 3. 重複チェック
-	if (isUsedNick(newNick)) {
+	if (isUsedNick(newNick, c.getFd())) {
         c.sendMessage("433 NICK :Nickname is already in use\r\n");
         return;
     }
@@ -105,7 +107,7 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
         // 変更を本人に通知
         c.sendMessage(msg);
         // 参加している全チャンネルのメンバーに通知
-        const std::vector<std::string>& userChannels = c.getChannels();
+        const std::vector<std::string> userChannels = c.getAllChannels();
         for (size_t i = 0; i < userChannels.size(); i++) {
             broadcastToChannel(*_channels[userChannels[i]], msg, &c);
         }

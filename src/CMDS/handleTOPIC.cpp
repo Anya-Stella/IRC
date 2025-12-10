@@ -56,7 +56,7 @@ void Server::handleTOPIC(Client& c, const std::vector<std::string>& params)
 
     // 6. 他のメンバー全員に通知
     std::string msg = ":" + c.getNickname() + " TOPIC " + channelName + " :" + newTopic + "\r\n";
-    broadcastToChannel(*channel, msg);
+    broadcastToChannel(*channel, msg, NULL);
 
     return;
 }

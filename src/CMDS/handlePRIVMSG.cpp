@@ -7,8 +7,8 @@ void Server::broadcastToChannel(Channel& ch, const std::string& message, Client*
     const std::map<int, Client*>& members = ch.getClients(); // チャンネルのメンバー一覧
     for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
     {
-        if (sender && it->second->getNickname() == sender->getNickname())
-            continue; // 送信者には送らない
+        if (sender && it->second->getFd() == sender->getFd())
+            continue; // 送信者をFDで比較して除外
 
         it->second->sendMessage(message);
     }
