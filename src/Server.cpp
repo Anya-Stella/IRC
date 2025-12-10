@@ -232,12 +232,12 @@ void	Server::mkPmsg(const std::string& line, ParsedMessage &pmsg)
 			break;
 
 		// ':' to end 
-		if (line[i] == ':' && i > 0)
+		if (line[i] == ':')
 		{
 			++i;
 			std::string trail = line.substr(i);
 			pmsg.params.push_back(trail);
-			return;
+			return;  
 		}
 
 		// normal
