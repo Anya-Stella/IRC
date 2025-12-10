@@ -60,11 +60,11 @@ void Server::partClientFromAllChannels(Client &c)
         {
             Channel* ch = _channels[name];
 
-            // Broadcast: <nick> PART #channel
-            broadcastToChannel(*ch, ":" + c.getNickname() + " PART " + name + "\r\n");
-
-            // Channel から削除
+            // Channel からクライアントを先に削除
             ch->removeClient(&c);
+
+            // Broadcast: <nick> QUIT :Client Quit
+            broadcastToChannel(*ch, ":" + c.getNickname() + " QUIT :Client Quit\r\n");
         }
 
         // Client 側も削除

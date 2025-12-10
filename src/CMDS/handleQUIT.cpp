@@ -10,11 +10,6 @@ void Server::handleQUIT(Client& c, const std::vector<std::string>& params)
     else
         reason = params[0];  // 先頭の ":" はそのままでもよい
 
-    // 2. 参加している全チャンネルに QUIT 通知を送信
-    std::string quitMsg =
-        ":" + c.getNickname() + " QUIT :Quit: " + reason + "\r\n";
-    broadcastToAllUserChannels(c, quitMsg);
-
     // 3. クライアントにERRORメッセージを送信して切断を通知
     c.sendMessage("ERROR :Closing link: (" + c.getNickname() + ") [Quit: " + reason + "]\r\n");
 
