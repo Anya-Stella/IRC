@@ -74,13 +74,14 @@ void Server::partClientFromAllChannels(Client &c)
 
 void Server::joinSingleChannel(Client &c, const std::string &channelName, const std::string &key)
 {
-    // チャンネルがすでに存在するか確認
     Channel *channel;
+    bool isNewChannel = false;
 
     if (_channels.count(channelName))
         channel = _channels[channelName];
     else
     {
+        isNewChannel = true;
         channel = new Channel(channelName);
         _channels[channelName] = channel;
 
@@ -92,6 +93,12 @@ void Server::joinSingleChannel(Client &c, const std::string &channelName, const 
     if (!channel->canJoin(c, key))
     {
         c.sendMessage(":ircserv 475 " + channelName + " :Cannot join channel\r\n");
+        // 新規作成したチャンネルへの参加に失敗し、他に誰もいなければ削除してメモリリークを防ぐ
+        if (isNewChannel && channel->isEmpty())
+        {
+            _channels.erase(channelName);
+            delete channel;
+        }
         return;
     }
 

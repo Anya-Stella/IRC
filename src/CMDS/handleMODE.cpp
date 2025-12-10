@@ -35,6 +35,10 @@ void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
         }
         bool adding = true;
         int paramIndex = 2;
+
+        std::string appliedModes;
+        std::string appliedParams;
+
         for (size_t i = 0; i < modeStr.size(); i++) {
             char m = modeStr[i];
             if (m == '+') { adding = true; continue; }
@@ -46,45 +50,96 @@ void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
                 if (adding) {
                     if (params.size() <= static_cast<size_t>(paramIndex)) {
                         sender.sendMessage("461 MODE :Not enough parameters for +k\r\n");
-                        break;
+                        continue;
                     }
                     std::string key = params[paramIndex++];
-                    if (!key.empty())
-                        channel->setKey(key);
+                    channel->setKey(key);
+                    appliedModes += "+k";
+                    appliedParams += " " + key;
                 } else {
                     channel->setKey("");
+                    appliedModes += "-k";
+                    // -k は引数を取るべきではないが、もしクライアントが誤って指定した場合、
+                    // その引数が後続のモードに影響を与えないように消費する。
+                    if (params.size() > static_cast<size_t>(paramIndex)) {
+                        appliedParams += " " + params[paramIndex++];
+                    }
                 }
                 break;
             case 'l':
                 if (adding) {
-                    if (params.size() <= static_cast<size_t>(paramIndex)) break;
-                    int limit = atoi(params[paramIndex++].c_str());
-                    if (limit > 0) channel->setUserLimit(limit);
+                    if (params.size() <= static_cast<size_t>(paramIndex)) {
+                        sender.sendMessage("461 MODE :Not enough parameters for +l\r\n");
+                        continue;
+                    }
+                    const std::string& limitStr = params[paramIndex++];
+                    // パラメータが有効な数値であるか検証
+                    bool isValidNumber = true;
+                    for (size_t j = 0; j < limitStr.length(); ++j) {
+                        if (!isdigit(limitStr[j])) {
+                            isValidNumber = false;
+                            break;
+                        }
+                    }
+                    if (!isValidNumber) {
+                        sender.sendMessage("472 " + limitStr + " :is not a valid limit for +l\r\n");
+                        continue;
+                    }
+                    int limit = atoi(limitStr.c_str());
+                    if (limit <= 0) { // 制限値は正の数である必要がある
+                        sender.sendMessage("472 " + limitStr + " :Limit must be a positive number for +l\r\n");
+                        continue;
+                    }
+                    channel->setUserLimit(static_cast<size_t>(limit));
+                    appliedModes += "+l";
+                    appliedParams += " " + limitStr;
                 } else {
                     channel->setUserLimit(0);
+                    appliedModes += "-l";
+                    // -l は引数を取らないが、もしクライアントが誤って指定した場合、
+                    // その引数が後続のモードに影響を与えないように消費する。
+                    if (params.size() > static_cast<size_t>(paramIndex)) {
+                        paramIndex++; // 余分なパラメータを読み飛ばす
+                    }
                 }
                 break;
             case 'o': {
-                if (params.size() <= static_cast<size_t>(paramIndex)) break;
+                if (params.size() <= static_cast<size_t>(paramIndex)) {
+                    sender.sendMessage("461 MODE :Not enough parameters for +/-o\r\n");
+                    continue; // 次のモード文字へ
+                }
                 std::string nick = params[paramIndex++];
                 Client* targetClient = findClientByNick(nick);
-                if (!targetClient) break;
-                if (adding)
+
+                // ターゲットユーザーがサーバーに存在しない、またはチャンネルにいない場合
+                if (!targetClient || !channel->hasClient(targetClient)) {
+                    sender.sendMessage("441 " + nick + " " + channelName + " :They aren't on that channel\r\n");
+                    continue; // 次のモード文字へ
+                }
+
+                // 権限を付与または剥奪
+                if (adding) {
                     channel->addOperator(targetClient->getFd());
-                else
+                } else {
                     channel->removeOperator(targetClient->getFd());
+                }
+
+                // 成功したモードとパラメータを記録
+                appliedModes += (adding ? '+' : '-');
+                appliedModes += 'o';
+                appliedParams += " " + nick;
                 break;
             }
             default:
                 sender.sendMessage("472 " + std::string(1, m) + " :Unknown MODE flag\r\n");
-                break;
+                continue;
             }
         }
-        std::string msg = ":" + sender.getNickname() + " MODE " + channelName + " ";
-        for (size_t i = 1; i < params.size(); i++)
-            msg += params[i] + " ";
-        msg += "\r\n";
-        broadcastToChannel(*channel, msg);
+        // 実際に適用されたモード変更があった場合のみ、ブロードキャストする
+        if (!appliedModes.empty()) {
+            std::string msg = ":" + sender.getNickname() + " MODE " + channelName + " " + appliedModes + appliedParams + "\r\n";
+            broadcastToChannel(*channel, msg);
+        }
     } else {
         // ユーザーモード: 自分自身のみ許可
         if (target != sender.getNickname()) {
