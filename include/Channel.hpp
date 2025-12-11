@@ -8,6 +8,14 @@
 
 class Client; // 前方宣言
 
+enum JoinResult {
+    JOIN_SUCCESS,
+    ERR_INVITEONLY,
+    ERR_BADCHANNELKEY,
+    ERR_CHANNELISFULL,
+    ERR_ALREADYINCHANNEL
+};
+
 class Channel {
 private:
     std::string _name;
@@ -55,6 +63,9 @@ public:
     bool isInvited(int fd) const {
         return _invited.count(fd) > 0;
     }
+    void removeInvite(int fd) {
+        _invited.erase(fd);
+    }
 
     /* --- OP 管理（統一版） --- */
     bool isOperator(int fd) const { return _operators.count(fd) > 0; }
@@ -80,18 +91,20 @@ public:
     void setUserLimit(size_t l) { _userLimit = l; }
 
     /* --- JOIN 可能か？ --- */
-    bool canJoin(Client& c, const std::string& key) const {
-        (void)c;
-
+    JoinResult canJoin(Client& c, const std::string& key) const {
+        // すでに参加済み
+        if (hasClient(&c))
+            return ERR_ALREADYINCHANNEL;
+        // 招待専用チャンネルで、招待されていない
         if (_inviteOnly && !_invited.count(c.getFd()))
-            return false;
-
+            return ERR_INVITEONLY;
+        // 鍵が設定されていて、提供された鍵が違う
         if (!_key.empty() && key != _key)
-            return false;
-
+            return ERR_BADCHANNELKEY;
+        // ユーザー数制限に達している
         if (_userLimit > 0 && _clients.size() >= _userLimit)
-            return false;
-
-        return true;
+            return ERR_CHANNELISFULL;
+        // すべてのチェックをパス
+        return JOIN_SUCCESS;
     }
 };

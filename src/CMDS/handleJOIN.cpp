@@ -84,9 +84,29 @@ void Server::joinSingleChannel(Client &c, const std::string &channelName, const 
     }
 
     // JOIN 可能か（invite-only / key / userLimit）
-    if (!channel->canJoin(c, key))
+    JoinResult result = channel->canJoin(c, key);
+    if (result != JOIN_SUCCESS)
     {
-        c.sendMessage(":ircserv 475 " + channelName + " :Cannot join channel\r\n");
+        switch (result)
+        {
+            case ERR_BADCHANNELKEY:
+                // 475 ERR_BADCHANNELKEY: <channel> :Cannot join channel (+k)
+                c.sendMessage(":ircserv 475 " + c.getNickname() + " " + channelName + " :Cannot join channel (+k)\r\n");
+                break;
+            case ERR_INVITEONLY:
+                // 473 ERR_INVITEONLYCHAN: <channel> :Cannot join channel (+i)
+                c.sendMessage(":ircserv 473 " + c.getNickname() + " " + channelName + " :Cannot join channel (+i)\r\n");
+                break;
+            case ERR_CHANNELISFULL:
+                // 471 ERR_CHANNELISFULL: <channel> :Cannot join channel (+l)
+                c.sendMessage(":ircserv 471 " + c.getNickname() + " " + channelName + " :Cannot join channel (+l)\r\n");
+                break;
+            case ERR_ALREADYINCHANNEL:
+                // すでに参加している場合は何もしない
+                return;
+            default: // JOIN_SUCCESS or other cases
+                break;
+        }
         // 新規作成したチャンネルへの参加に失敗し、他に誰もいなければ削除してメモリリークを防ぐ
         if (isNewChannel && channel->isEmpty())
         {
@@ -99,6 +119,9 @@ void Server::joinSingleChannel(Client &c, const std::string &channelName, const 
     // 参加処理
     channel->addClient(&c);
     c.joinChannel(channelName);
+
+    // 参加に成功したので、招待は消費されたとみなす
+    channel->removeInvite(c.getFd());
 
     // 通知
     broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName + "\r\n", NULL);
