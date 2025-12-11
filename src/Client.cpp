@@ -8,6 +8,7 @@ Client::Client(int fd)
 	_nickname("unknown"),
 	_username("unknown"),
 	_realname("unknown"),
+	_hostname("mtkIRC"),
 	_lastPongTime(0),
 	_passAccepted(false),
 	_hasNick(false),
@@ -110,4 +111,15 @@ bool Client::tryToRegister()
 		return true;
 	}
 	return false;
+}
+
+/* PRIVMSG */
+std::string	Client::getPrefix() const
+{
+	return _nickname + "!" + _username + "@" + _hostname;
+}
+
+std::string	Client::getHostname() const
+{
+	return _hostname;
 }

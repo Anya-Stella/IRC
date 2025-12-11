@@ -19,6 +19,7 @@ private:
 	std::string					_nickname;
 	std::string					_username;
     std::string					_realname;
+	std::string					_hostname;
 	time_t						_lastPongTime;
 	std::set<std::string> 		_joinedChannels;
 	std::string					_buff;	//mkuida
@@ -63,8 +64,10 @@ public:
 	std::vector<std::string> getAllChannels() const {
         return std::vector<std::string>(_joinedChannels.begin(), _joinedChannels.end());
     }
-	
 
+	/* PRIVMSG */
+	std::string	getPrefix() const;
+	std::string	getHostname() const;
 
 	/* cmd */
 	const std::string& getBuff( void ) const;	//mkuida

@@ -44,28 +44,37 @@ void Server::handlePRIVMSG(Client& sender, const std::vector<std::string>& param
         return;
     }
 
-    const std::string& target = params[0];  // 受信者
-    const std::string& message = params[1]; // 本文
+    // 2. パラメータ抽出
+    const std::string&  target = params[0];  // 受信者
+    const std::string   message = params[1]; // 本文
+    std::string         prefix = ":" + sender.getPrefix();
 
-    if (target[0] == '#') {
+    if (!target.empty() && target[0] == '#') {
         // チャンネル宛
-        if (_channels.find(target) == _channels.end()) {
-            sender.sendMessage("403 " + target + " :No such channel\r\n");
+        std::map<std::string, Channel*>::iterator it = _channels.find(target);
+        if (it == _channels.end()) {
+            sender.sendMessage(":" + sender.getHostname() + " 403 " +
+                               sender.getNickname() + " " + target +
+                               " :No such channel\r\n");
             return;
         }
-        Channel* ch = _channels[target];
+        Channel* ch = it->second;
         if (!ch->hasClient(&sender)) {
-            sender.sendMessage("404 " + target + " :Cannot send to channel\r\n");
+            sender.sendMessage(":" + sender.getHostname() + " 404 " +
+                               sender.getNickname() + " " + target +
+                               " :Cannot send to channel\r\n");
             return;
         }
-        broadcastToChannel(*ch, ":" + sender.getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", &sender);
+        std::string line = prefix + " PRIVMSG " + target + " :" + message + "\r\n";
+        broadcastToChannel(*ch, line, &sender);
     } else {
         // ユーザー宛
         Client* recipient = findClientByNick(target);
         if (!recipient) {
-            sender.sendMessage("401 " + target + " :No such nick\r\n");
+            sender.sendMessage(":" + sender.getHostname() + " 401 " + sender.getNickname() + " " + target + " :No such nick\r\n");
             return;
         }
-        recipient->sendMessage(":" + sender.getNickname() + " PRIVMSG " + target + " :" + message + "\r\n");
+        std::string line = prefix + " PRIVMSG " + target + " :" + message + "\r\n";
+        recipient->sendMessage(line);
     }
 }
