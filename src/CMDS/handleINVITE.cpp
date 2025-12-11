@@ -35,7 +35,6 @@ void Server::handleINVITE(Client& sender, const std::vector<std::string>& params
     }
 
     // 5. チャンネルが招待制なら OP かチェック
-    //    MODE +i を実装している場合に必要
     if (channel->isInviteOnly() && !channel->isOperator(&sender)) {
         sender.sendMessage("482 " + channelName + " :You're not channel operator\r\n");
         return;

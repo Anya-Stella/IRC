@@ -46,10 +46,20 @@ void Server::handleTOPIC(Client& c, const std::vector<std::string>& params)
         return;
     }
 
-    // 変更内容（:がついている部分）
-    std::string newTopic = params[1];
-    if (!newTopic.empty() && newTopic[0] == ':')
-        newTopic.erase(0, 1); // ':' 取り除く
+    // 5. トピック変更（TOPIC #chan :new topic）
+    // 変更内容（params[1]以降を全て結合）
+    std::string newTopic;
+    for (size_t i = 1; i < params.size(); ++i) {
+        newTopic += params[i] + " ";
+    }
+
+    // 先頭のコロンを削除し、末尾のスペースを削除
+    if (!newTopic.empty() && newTopic[0] == ':') {
+        newTopic.erase(0, 1);
+    }
+    if (!newTopic.empty() && newTopic[newTopic.size() - 1] == ' ') {
+        newTopic.erase(newTopic.size() - 1);
+    }
 
     // トピック更新
     channel->setTopic(newTopic);

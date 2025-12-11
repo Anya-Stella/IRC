@@ -44,8 +44,16 @@ void Server::handleMODE(Client& sender, const std::vector<std::string>& params)
             if (m == '+') { adding = true; continue; }
             if (m == '-') { adding = false; continue; }
             switch (m) {
-            case 'i': channel->setInviteOnly(adding); break;
-            case 't': channel->setTopicProtected(adding); break;
+            case 'i':
+                channel->setInviteOnly(adding);
+                appliedModes += (adding ? '+' : '-');
+                appliedModes += 'i';
+                break;
+            case 't':
+                channel->setTopicProtected(adding);
+                appliedModes += (adding ? '+' : '-');
+                appliedModes += 't';
+                break;
             case 'k':
                 if (adding) {
                     if (params.size() <= static_cast<size_t>(paramIndex)) {
