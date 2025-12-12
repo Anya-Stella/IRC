@@ -78,3 +78,4 @@ void Server::handlePRIVMSG(Client& sender, const std::vector<std::string>& param
         recipient->sendMessage(line);
     }
 }
+
