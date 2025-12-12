@@ -55,6 +55,6 @@ void Server::handleINVITE(Client& sender, const std::vector<std::string>& params
                        targetNick + " " + channelName + "\r\n");
 
     // 9. 招待対象ユーザーに INVITE メッセージを送信
-    target->sendMessage(":" + sender.getNickname() +
+    target->sendMessage(":" + sender.getPrefix() +
                         " INVITE " + targetNick + " :" + channelName + "\r\n");
 }

@@ -14,12 +14,12 @@ void Server::handleNOTICE(Client& sender, const std::vector<std::string>& params
     if (!target.empty() && target[0] == '#') {
         Channel* ch = _channels[target];
         if (!ch) return; // チャンネルが存在しない場合は無視
-        broadcastToChannel(*ch, ":" + sender.getNickname() + " NOTICE " + target + " :" + message + "\r\n", &sender);
+        broadcastToChannel(*ch, ":" + sender.getPrefix() + " NOTICE " + target + " :" + message + "\r\n", &sender);
     }
     // 3. ユーザー宛の場合
     else {
         Client* recipient = findClientByNick(target);
         if (!recipient) return; // ユーザーがいなければ無視
-        recipient->sendMessage(":" + sender.getNickname() + " NOTICE " + target + " :" + message + "\r\n");
+        recipient->sendMessage(":" + sender.getPrefix() + " NOTICE " + target + " :" + message + "\r\n");
     }
 }

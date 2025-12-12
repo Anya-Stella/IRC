@@ -96,10 +96,12 @@ void Server::handlePART(Client& c, const std::vector<std::string>& params)
         // 5. 退出理由（コメント）を決定
         // params[1] が存在すればそれを使用し、なければデフォルトのメッセージ
         std::string reason = (params.size() > 1) ? params[1] : "Leaving";
-
-        // 5. 退出通知を先に送信（自分自身は除外される）
-        broadcastToChannel(*channel, ":" + c.getNickname() + " PART " + channelName + " :" + reason + "\r\n", &c);
-
+        
+        // 5. 退出通知をチャンネルの全員に送信する
+        //    第3引数をNULLにすることで、退出する本人にもメッセージが送られる
+        std::string partMsg = ":" + c.getPrefix() + " PART " + channelName + " :" + reason + "\r\n";
+        broadcastToChannel(*channel, partMsg, NULL);
+        
         // 6. 実際に退出処理を行う
         channel->removeClient(&c);
         c.leaveChannel(channelName);

@@ -35,7 +35,7 @@ void Server::handleKICK(Client& sender, const std::vector<std::string>& params)
     }
 
     // 5. KICK通知をチャンネル全員に送信
-    std::string msg = ":" + sender.getNickname() + " KICK " + channelName + " " + targetNick + " :" + comment + "\r\n";
+    std::string msg = ":" + sender.getPrefix() + " KICK " + channelName + " " + targetNick + " :" + comment + "\r\n";
     broadcastToChannel(*channel, msg, NULL);
 
     // 6. チャンネルから削除

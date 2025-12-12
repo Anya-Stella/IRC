@@ -103,7 +103,7 @@ void	Server::handleNICK(Client &c, const std::vector<std::string> &params)
 
     // 4. ニックネーム変更通知（既にニックネームがある場合、かつ、クライアントが登録済みの場合のみ）
     if (c.hasNick() && c.isFullyRegistered()) {
-        std::string msg = ":" + c.getNickname() + " NICK :" + newNick + "\r\n";
+        std::string msg = ":" + c.getPrefix() + " NICK :" + newNick + "\r\n";
         // 変更を本人に通知
         c.sendMessage(msg);
         // 参加している全チャンネルのメンバーに通知

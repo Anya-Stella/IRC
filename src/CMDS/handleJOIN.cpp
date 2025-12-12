@@ -53,7 +53,7 @@ void Server::partClientFromAllChannels(Client &c)
             ch->removeClient(&c);
 
             // Broadcast: <nick> QUIT :Client Quit
-            broadcastToChannel(*ch, ":" + c.getNickname() + " QUIT :Client Quit\r\n", &c);
+            broadcastToChannel(*ch, ":" + c.getPrefix() + " QUIT :Client Quit\r\n", &c);
         }
 
         // Client 側も削除
@@ -124,7 +124,7 @@ void Server::joinSingleChannel(Client &c, const std::string &channelName, const 
     channel->removeInvite(c.getFd());
 
     // 通知
-    broadcastToChannel(*channel, ":" + c.getNickname() + " JOIN :" + channelName + "\r\n", NULL);
+    broadcastToChannel(*channel, ":" + c.getPrefix() + " JOIN :" + channelName + "\r\n", NULL);
 
     // NAMES リスト送信
     sendNamesReply(c, *channel);
@@ -166,4 +166,3 @@ void Server::handleJOIN(Client &c, const std::vector<std::string> &params)
         joinSingleChannel(c, channelName, key);
     }
 }
-
